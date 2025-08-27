@@ -7,6 +7,8 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+require('./config/passport');
+
 app.use('/', routes.auth);
 
 const PORT = process.env.PORT || 3000;
