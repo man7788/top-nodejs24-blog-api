@@ -47,9 +47,13 @@ exports.postLogin = [
     }
 
     const payload = { sub: user.id, username: user.username, admin: true };
+    const privateKey = Buffer.from(process.env.JWT_PRIV_KEY, 'base64').toString(
+      'ascii',
+    );
 
-    const token = jwt.sign(payload, process.env.JWT_PRIV_KEY, {
+    const token = jwt.sign(payload, privateKey, {
       expiresIn: process.env.JWT_EXPIRE_TIME,
+      algorithm: 'RS256',
     });
 
     res.json({ success: true, token });
