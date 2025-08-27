@@ -1,3 +1,6 @@
+# Privacy Enhanced Mail
+*.pem
+
 # Logs
 logs
 *.log
