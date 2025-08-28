@@ -26,3 +26,17 @@ exports.getAllPosts = async (req, res) => {
     status: 200,
   });
 };
+
+exports.getPost = async (req, res) => {
+  const postId = req.params.postId;
+
+  const post = await db.readPost(Number(postId));
+
+  res.status(200).json({
+    success: true,
+    payload: {
+      post,
+    },
+    status: 200,
+  });
+};
