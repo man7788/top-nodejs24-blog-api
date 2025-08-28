@@ -23,4 +23,10 @@ postRouter.get(
   postController.getPost
 );
 
+postRouter.patch(
+  '/:postId',
+  passport.authenticate('jwt', { session: false }),
+  postController.patchPost
+);
+
 module.exports = postRouter;
