@@ -8,7 +8,13 @@ const postRouter = Router();
 postRouter.post(
   '/',
   passport.authenticate('jwt', { session: false }),
-  postController.postBlogPost,
+  postController.postBlogPost
+);
+
+postRouter.get(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  postController.getAllPosts
 );
 
 module.exports = postRouter;
