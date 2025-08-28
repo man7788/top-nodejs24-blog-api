@@ -71,8 +71,14 @@ exports.patchPost = async (req, res) => {
   const postId = req.params.postId;
   const title = req.body.title;
   const content = req.body.content;
+  const isPublished = req.body.isPublished;
 
-  const updated = await db.updatePost(Number(postId), title, content);
+  const updated = await db.updatePost(
+    Number(postId),
+    title,
+    content,
+    isPublished
+  );
 
   res.status(200).json({
     success: true,
