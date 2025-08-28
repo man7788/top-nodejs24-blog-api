@@ -27,8 +27,9 @@ exports.postBlogPost = [
     const author = req.user.username;
     const title = req.body.title;
     const content = req.body.content;
+    const isPublished = req.body.isPublished;
 
-    const post = await db.createPost(author, title, content);
+    const post = await db.createPost(author, title, content, isPublished);
 
     res.status(201).json({
       success: true,
