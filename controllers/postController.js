@@ -1,20 +1,44 @@
+const validator = require('../utils/validators/postValidator');
+const { validationResult } = require('express-validator');
 const db = require('../database/queries/postQuery');
 
-exports.postBlogPost = async (req, res) => {
-  const author = req.user.username;
-  const title = req.body.title;
-  const content = req.body.content;
+exports.postBlogPost = [
+  validator.validatePost,
+  async (req, res) => {
+    const errors = validationResult(req);
 
-  const post = await db.createPost(author, title, content);
+    if (!errors.isEmpty()) {
+      const errorArray = errors.array();
+      const resMessage = [];
 
-  res.status(201).json({
-    success: true,
-    payload: {
-      post_id: post.id,
-    },
-    status: 201,
-  });
-};
+      errorArray.forEach((error) => {
+        resMessage.push({ path: error.path, message: error.msg });
+      });
+
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 400,
+          messages: resMessage,
+        },
+      });
+    }
+
+    const author = req.user.username;
+    const title = req.body.title;
+    const content = req.body.content;
+
+    const post = await db.createPost(author, title, content);
+
+    res.status(201).json({
+      success: true,
+      payload: {
+        post_id: post.id,
+      },
+      status: 201,
+    });
+  },
+];
 
 exports.getAllPosts = async (req, res) => {
   const posts = await db.readAllPosts();
