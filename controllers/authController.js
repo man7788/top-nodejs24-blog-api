@@ -1,7 +1,7 @@
 require('dotenv').config();
 const validator = require('../utils/validators/authValidator');
 const { validationResult } = require('express-validator');
-const db = require('../database/userQuery');
+const db = require('../database/queries/userQuery');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
