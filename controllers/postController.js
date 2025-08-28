@@ -57,3 +57,17 @@ exports.patchPost = async (req, res) => {
     status: 200,
   });
 };
+
+exports.deletePost = async (req, res) => {
+  const postId = req.params.postId;
+
+  const deleted = await db.deletePost(Number(postId));
+
+  res.status(200).json({
+    success: true,
+    payload: {
+      deleted_id: deleted.id,
+    },
+    status: 200,
+  });
+};
