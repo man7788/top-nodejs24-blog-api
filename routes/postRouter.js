@@ -29,4 +29,10 @@ postRouter.patch(
   postController.patchPost
 );
 
+postRouter.delete(
+  '/:postId',
+  passport.authenticate('jwt', { session: false }),
+  postController.deletePost
+);
+
 module.exports = postRouter;
