@@ -17,4 +17,10 @@ postRouter.get(
   postController.getAllPosts
 );
 
+postRouter.get(
+  '/:postId',
+  passport.authenticate('jwt', { session: false }),
+  postController.getPost
+);
+
 module.exports = postRouter;
