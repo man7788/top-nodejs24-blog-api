@@ -1,10 +1,11 @@
 const db = require('../database/queries/postQuery');
 
 exports.postBlogPost = async (req, res) => {
+  const author = req.user.username;
   const title = req.body.title;
   const content = req.body.content;
 
-  const post = await db.createPost(title, content);
+  const post = await db.createPost(author, title, content);
 
   res.status(201).json({
     success: true,
