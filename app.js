@@ -10,6 +10,7 @@ app.use(express.json());
 require('./config/passport');
 
 app.use('/', routes.auth);
+app.use('/posts', routes.post);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
