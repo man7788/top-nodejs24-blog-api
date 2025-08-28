@@ -41,3 +41,19 @@ exports.getPost = async (req, res) => {
     status: 200,
   });
 };
+
+exports.patchPost = async (req, res) => {
+  const postId = req.params.postId;
+  const title = req.body.title;
+  const content = req.body.content;
+
+  const updated = await db.updatePost(Number(postId), title, content);
+
+  res.status(200).json({
+    success: true,
+    payload: {
+      updated,
+    },
+    status: 200,
+  });
+};
