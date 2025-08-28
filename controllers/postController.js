@@ -14,3 +14,15 @@ exports.postBlogPost = async (req, res) => {
     status: 201,
   });
 };
+
+exports.getAllPosts = async (req, res) => {
+  const posts = await db.readAllPosts();
+
+  res.status(200).json({
+    success: true,
+    payload: {
+      posts,
+    },
+    status: 200,
+  });
+};
