@@ -2,6 +2,7 @@ const validator = require('../utils/validators/postValidator');
 const { validationResult } = require('express-validator');
 const db = require('../database/queries/postQuery');
 
+// Handle post create on POST
 exports.postBlogPost = [
   validator.validatePost,
   async (req, res) => {
@@ -12,14 +13,15 @@ exports.postBlogPost = [
       const resMessage = [];
 
       errorArray.forEach((error) => {
-        resMessage.push({ path: error.path, message: error.msg });
+        resMessage.push({ field: error.path, message: error.msg });
       });
 
       return res.status(400).json({
-        success: false,
+        status: 'error',
         error: {
           code: 400,
-          messages: resMessage,
+          message: 'Post create form validation failed.',
+          details: resMessage,
         },
       });
     }
@@ -32,41 +34,41 @@ exports.postBlogPost = [
     const post = await db.createPost(author, title, content, isPublished);
 
     res.status(201).json({
-      success: true,
-      payload: {
-        post_id: post.id,
+      status: 'success',
+      data: {
+        post: { id: post.id },
       },
-      status: 201,
     });
   },
 ];
 
+// Handle get all posts on GET
 exports.getAllPosts = async (req, res) => {
   const posts = await db.readAllPosts();
 
   res.status(200).json({
-    success: true,
-    payload: {
+    status: 'success',
+    data: {
       posts,
     },
-    status: 200,
   });
 };
 
+// Handle get a single post on GET
 exports.getPost = async (req, res) => {
   const postId = req.params.postId;
 
   const post = await db.readPost(Number(postId));
 
   res.status(200).json({
-    success: true,
-    payload: {
+    status: 'success',
+    data: {
       post,
     },
-    status: 200,
   });
 };
 
+// Handle update a single post on PATCH
 exports.patchPost = async (req, res) => {
   const postId = req.params.postId;
   const title = req.body.title;
@@ -81,24 +83,23 @@ exports.patchPost = async (req, res) => {
   );
 
   res.status(200).json({
-    success: true,
-    payload: {
-      updated,
+    status: 'success',
+    data: {
+      post: updated,
     },
-    status: 200,
   });
 };
 
+// Handle delete a single post on DELETE
 exports.deletePost = async (req, res) => {
   const postId = req.params.postId;
 
   const deleted = await db.deletePost(Number(postId));
 
   res.status(200).json({
-    success: true,
-    payload: {
-      deleted_id: deleted.id,
+    status: 'success',
+    data: {
+      post: { id: deleted.id },
     },
-    status: 200,
   });
 };
