@@ -9,7 +9,7 @@ exports.postBlogPost = async (req, res) => {
   res.status(201).json({
     success: true,
     payload: {
-      post: post.id,
+      post_id: post.id,
     },
     status: 201,
   });
