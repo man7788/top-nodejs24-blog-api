@@ -1,5 +1,6 @@
 const express = require('express');
 
+// Import all routes from routes/index barrel file
 const routes = require('./routes');
 
 const app = express();
@@ -7,6 +8,7 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+// Invoke Passport configuration
 require('./config/passport');
 
 app.use('/', routes.auth);
