@@ -5,6 +5,7 @@ const db = require('../database/queries/userQuery');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+// Handle authentication and sign JWT on POST
 exports.postLogin = [
   validator.validateLogin,
   async (req, res) => {
@@ -12,18 +13,18 @@ exports.postLogin = [
 
     if (!errors.isEmpty()) {
       const errorArray = errors.array();
-      const resMessage = [
-        {
-          path: errorArray[0].path,
-          message: errorArray[0].msg,
-        },
-      ];
+      const resMessage = [];
+
+      errorArray.forEach((error) => {
+        resMessage.push({ field: error.path, message: error.msg });
+      });
 
       return res.status(400).json({
-        success: false,
+        status: 'error',
         error: {
           code: 400,
-          messages: resMessage,
+          message: 'Login form validation failed.',
+          details: resMessage,
         },
       });
     }
@@ -31,11 +32,13 @@ exports.postLogin = [
     const email = req.body.email;
     const password = req.body.password;
 
+    // Generic phrase response for invalid email and password
     const loginFail = {
-      success: false,
+      status: 'error',
       error: {
         code: 401,
-        message: 'Incorrect username or password.',
+        message: 'Invalid email or password.',
+        details: [{ field: 'generic', message: 'Invalid email or password.' }],
       },
     };
 
@@ -51,7 +54,9 @@ exports.postLogin = [
       return res.status(404).json(loginFail);
     }
 
+    // Payload for JWT sign
     const payload = { sub: user.id, username: user.username, admin: true };
+    // Convert private key from pem to base64 format
     const privateKey = Buffer.from(process.env.JWT_PRIV_KEY, 'base64').toString(
       'ascii'
     );
@@ -61,6 +66,6 @@ exports.postLogin = [
       algorithm: 'RS256',
     });
 
-    res.json({ success: true, token });
+    res.status(200).json({ status: 'success', data: { token } });
   },
 ];
