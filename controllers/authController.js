@@ -12,13 +12,18 @@ exports.postLogin = [
 
     if (!errors.isEmpty()) {
       const errorArray = errors.array();
-      const resMessage = errorArray[0].msg;
+      const resMessage = [
+        {
+          path: errorArray[0].path,
+          message: errorArray[0].msg,
+        },
+      ];
 
       return res.status(400).json({
         success: false,
         error: {
           code: 400,
-          message: resMessage,
+          messages: resMessage,
         },
       });
     }
@@ -48,7 +53,7 @@ exports.postLogin = [
 
     const payload = { sub: user.id, username: user.username, admin: true };
     const privateKey = Buffer.from(process.env.JWT_PRIV_KEY, 'base64').toString(
-      'ascii',
+      'ascii'
     );
 
     const token = jwt.sign(payload, privateKey, {
