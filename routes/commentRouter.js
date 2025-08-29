@@ -13,4 +13,10 @@ commentRouter.patch(
   commentController.patchComment
 );
 
+// DELETE request to delete comment
+commentRouter.delete(
+  '/:postId/comments/:commentId',
+  commentController.deleteComment
+);
+
 module.exports = commentRouter;
