@@ -7,6 +7,9 @@ const commentRouter = Router();
 // POST request to create comment
 commentRouter.post('/:postId/comments', commentController.postComment);
 
+// GET request to read comment
+commentRouter.get('/:postId/comments/:commentId', commentController.getComment);
+
 // UPDATE request to update comment
 commentRouter.patch(
   '/:postId/comments/:commentId',
