@@ -16,3 +16,23 @@ exports.postComment = async (req, res) => {
     },
   });
 };
+
+// Handle comment update on UPDATE
+exports.patchComment = async (req, res) => {
+  const postId = req.params.postId;
+  const commentId = req.params.commentId;
+  const content = req.body.content;
+
+  const updated = await db.updateComment(
+    Number(postId),
+    Number(commentId),
+    content
+  );
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      comment: { id: updated.id },
+    },
+  });
+};
