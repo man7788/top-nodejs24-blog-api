@@ -36,3 +36,18 @@ exports.patchComment = async (req, res) => {
     },
   });
 };
+
+// Handle comment delete on DELETE
+exports.deleteComment = async (req, res) => {
+  const postId = req.params.postId;
+  const commentId = req.params.commentId;
+
+  const deleted = await db.deleteComment(Number(postId), Number(commentId));
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      comment: { id: deleted.id },
+    },
+  });
+};
