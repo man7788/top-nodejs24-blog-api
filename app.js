@@ -11,8 +11,10 @@ app.use(express.json());
 // Invoke Passport configuration
 require('./config/passport');
 
+// Routes
 app.use('/', routes.auth);
 app.use('/posts', routes.post);
+app.use('/posts', routes.comment);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
