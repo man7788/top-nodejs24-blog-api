@@ -19,3 +19,11 @@ exports.readAllPosts = async () => {
   const posts = await prisma.post.findMany({});
   return posts;
 };
+
+// Read a single post
+exports.readPost = async (postId) => {
+  const post = await prisma.post.findFirst({
+    where: { id: postId },
+  });
+  return post;
+};
