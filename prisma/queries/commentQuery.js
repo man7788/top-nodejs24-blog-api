@@ -22,3 +22,15 @@ exports.readComment = async (postId, commentId) => {
 
   return post;
 };
+
+// Update a single comment
+exports.updateComment = async (postId, commentId, content) => {
+  const updated = await prisma.comment.update({
+    where: { postId_id: { postId, id: commentId } },
+    data: {
+      content,
+    },
+  });
+
+  return updated;
+};
