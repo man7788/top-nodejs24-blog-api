@@ -1,21 +1,51 @@
+const validator = require('../utils/validators/commentValidator');
+const { validationResult } = require('express-validator');
 const db = require('../database/queries/commentQuery');
 
 // Handle comment create on POST
-exports.postComment = async (req, res) => {
-  const postId = req.params.postId;
-  const name = req.body.name;
-  const email = req.body.email;
-  const content = req.body.content;
+exports.postComment = [
+  validator.validateComment,
+  async (req, res) => {
+    const errors = validationResult(req);
 
-  const comment = await db.createComment(Number(postId), name, email, content);
+    if (!errors.isEmpty()) {
+      const errorArray = errors.array();
+      const resMessage = [];
 
-  res.status(200).json({
-    status: 'success',
-    data: {
-      comment: { id: comment.id, post_id: comment.post_id },
-    },
-  });
-};
+      errorArray.forEach((error) => {
+        resMessage.push({ field: error.path, message: error.msg });
+      });
+
+      return res.status(400).json({
+        status: 'error',
+        error: {
+          code: 400,
+          message: 'Comment form validation failed.',
+          details: resMessage,
+        },
+      });
+    }
+
+    const postId = req.params.postId;
+    const name = req.body.name;
+    const email = req.body.email;
+    const content = req.body.content;
+
+    const comment = await db.createComment(
+      Number(postId),
+      name,
+      email,
+      content
+    );
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        comment: { id: comment.id, post_id: comment.post_id },
+      },
+    });
+  },
+];
 
 // Handle comment read on GET
 exports.getComment = async (req, res) => {
