@@ -1,7 +1,6 @@
 const { body } = require('express-validator');
 
 const emptyErr = 'must not be empty.';
-const lengthErr24 = 'must not exceed 255 characters.';
 const lengthErr255 = 'must not exceed 255 characters.';
 
 exports.validatePost = [
@@ -10,8 +9,8 @@ exports.validatePost = [
     .notEmpty()
     .withMessage(`Title ${emptyErr}`)
     .bail()
-    .isLength({ max: 24 })
-    .withMessage(`Title ${lengthErr24}`)
+    .isLength({ max: 255 })
+    .withMessage(`Title ${lengthErr255}`)
     .escape(),
   body('content')
     .trim()
