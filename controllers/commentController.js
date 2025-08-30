@@ -1,6 +1,6 @@
 const validator = require('../utils/validators/commentValidator');
 const { validationResult } = require('express-validator');
-const db = require('../database/queries/commentQuery');
+const db = require('../prisma/queries/commentQuery');
 
 // Handle comment create on POST
 exports.postComment = [
@@ -26,17 +26,12 @@ exports.postComment = [
       });
     }
 
-    const postId = req.params.postId;
+    const postId = Number(req.params.postId);
     const name = req.body.name;
     const email = req.body.email;
     const content = req.body.content;
 
-    const comment = await db.createComment(
-      Number(postId),
-      name,
-      email,
-      content
-    );
+    const comment = await db.createComment(postId, name, email, content);
 
     res.status(200).json({
       status: 'success',
