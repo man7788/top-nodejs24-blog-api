@@ -1,6 +1,6 @@
 const validator = require('../utils/validators/postValidator');
 const { validationResult } = require('express-validator');
-const db = require('../database/queries/postQuery');
+const db = require('../prisma/queries/postQuery');
 
 // Handle post create on POST
 exports.postBlogPost = [
@@ -26,12 +26,12 @@ exports.postBlogPost = [
       });
     }
 
-    const author = req.user.username;
+    const author = Number(req.user.id);
     const title = req.body.title;
     const content = req.body.content;
-    const isPublished = req.body.isPublished;
+    const published = req.body.published;
 
-    const post = await db.createPost(author, title, content, isPublished);
+    const post = await db.createPost(author, title, content, published);
 
     res.status(201).json({
       status: 'success',
