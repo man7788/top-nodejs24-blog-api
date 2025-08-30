@@ -13,3 +13,12 @@ exports.createComment = async (postId, name, email, content) => {
 
   return comment;
 };
+
+// Read a single comment
+exports.readComment = async (postId, commentId) => {
+  const post = await prisma.comment.findUnique({
+    where: { postId_id: { postId, id: commentId } },
+  });
+
+  return post;
+};
