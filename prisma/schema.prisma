@@ -38,4 +38,6 @@ model Comment {
   published Boolean  @default(true)
   post      Post     @relation(fields: [postId], references: [id])
   postId    Int
+
+  @@unique([postId, id])
 }
