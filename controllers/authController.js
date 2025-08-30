@@ -1,7 +1,7 @@
 require('dotenv').config();
 const validator = require('../utils/validators/authValidator');
 const { validationResult } = require('express-validator');
-const db = require('../database/queries/userQuery');
+const db = require('../prisma/queries/userQuery');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -42,7 +42,7 @@ exports.postLogin = [
       },
     };
 
-    const user = await db.getUserByEmail(email);
+    const user = await db.readUserByEmail(email);
 
     if (!user) {
       return res.status(404).json(loginFail);
