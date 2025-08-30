@@ -1,9 +1,9 @@
 const { body } = require('express-validator');
 
 const emptyErr = 'must not be empty.';
-const lengthErr255 = 'must not must not exceed 255 characters.';
-const lengthErr64 = 'must not must not exceed 255 characters.';
 const formatErr = 'format is not correct.';
+const lengthErr64 = 'must not must not exceed 64 characters.';
+const lengthErr255 = 'must not must not exceed 255 characters.';
 
 exports.validateLogin = [
   body('email')
