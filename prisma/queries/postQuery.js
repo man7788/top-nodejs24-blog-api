@@ -29,6 +29,13 @@ exports.readAllPosts = async () => {
 exports.readPost = async (postId) => {
   const post = await prisma.post.findFirst({
     where: { id: postId },
+    include: {
+      comments: {
+        orderBy: {
+          createdAt: 'asc',
+        },
+      },
+    },
   });
 
   return post;
