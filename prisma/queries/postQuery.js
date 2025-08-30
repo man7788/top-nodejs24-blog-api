@@ -41,3 +41,12 @@ exports.updatePost = async (postId, title, content, published) => {
 
   return updated;
 };
+
+// Deleete a single post
+exports.deletePost = async (postId) => {
+  const deleted = await prisma.post.delete({
+    where: { id: postId },
+  });
+
+  return deleted;
+};
