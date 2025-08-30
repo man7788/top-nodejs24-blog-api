@@ -27,3 +27,17 @@ exports.readPost = async (postId) => {
   });
   return post;
 };
+
+// Update a single post
+exports.updatePost = async (postId, title, content, published) => {
+  const updated = await prisma.post.update({
+    where: { id: postId },
+    data: {
+      title,
+      content,
+      published,
+    },
+  });
+
+  return updated;
+};
