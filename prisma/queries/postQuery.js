@@ -16,7 +16,12 @@ exports.createPost = async (author, title, content, published) => {
 
 // Read all posts
 exports.readAllPosts = async () => {
-  const posts = await prisma.post.findMany({});
+  const posts = await prisma.post.findMany({
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
   return posts;
 };
 
@@ -25,6 +30,7 @@ exports.readPost = async (postId) => {
   const post = await prisma.post.findFirst({
     where: { id: postId },
   });
+
   return post;
 };
 
