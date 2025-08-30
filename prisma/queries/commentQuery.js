@@ -34,3 +34,12 @@ exports.updateComment = async (postId, commentId, content) => {
 
   return updated;
 };
+
+// Delete a single comment
+exports.deleteComment = async (postId, commentId) => {
+  const deleted = await prisma.comment.delete({
+    where: { postId_id: { postId, id: commentId } },
+  });
+
+  return deleted;
+};
