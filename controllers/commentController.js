@@ -100,7 +100,19 @@ exports.deleteComment = async (req, res) => {
   const postId = req.params.postId;
   const commentId = req.params.commentId;
 
-  const deleted = await db.deleteComment(Number(postId), Number(commentId));
+  const comment = await db.readComment(Number(postId), Number(commentId));
+
+  if (comment === null) {
+    return res.status(404).json({
+      status: 'error',
+      error: {
+        code: 400,
+        message: 'Not found',
+      },
+    });
+  }
+
+  const deleted = await db.deleteComment(comment.postId, comment.id);
 
   res.status(200).json({
     status: 'success',
