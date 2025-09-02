@@ -85,12 +85,19 @@ exports.patchPost = async (req, res) => {
   const content = req.body.content;
   const published = req.body.published;
 
-  const updated = await db.updatePost(
-    Number(postId),
-    title,
-    content,
-    published
-  );
+  const post = await db.readPost(Number(postId));
+
+  if (post === null) {
+    return res.status(404).json({
+      status: 'error',
+      error: {
+        code: 400,
+        message: 'Not found',
+      },
+    });
+  }
+
+  const updated = await db.updatePost(post.id, title, content, published);
 
   res.status(200).json({
     status: 'success',
