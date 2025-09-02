@@ -60,6 +60,16 @@ exports.getPost = async (req, res) => {
 
   const post = await db.readPost(Number(postId));
 
+  if (post === null) {
+    return res.status(404).json({
+      status: 'error',
+      error: {
+        code: 400,
+        message: 'Not found',
+      },
+    });
+  }
+
   res.status(200).json({
     status: 'success',
     data: {
