@@ -1,4 +1,5 @@
 const express = require('express');
+const { errorHandler } = require('./utils/errors/errorHandler');
 
 // Import all routes from routes/index barrel file
 const routes = require('./routes');
@@ -9,7 +10,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Invoke Passport configuration
-require('./config/passport');
+require('./utils/passport/passport');
 
 // Routes
 app.use('/', routes.auth);
@@ -21,7 +22,5 @@ app.listen(PORT, () => {
   console.log(`app listening on port ${PORT}!`);
 });
 
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(err.statusCode || 500).send(err.message);
-});
+// Custom error handler
+app.use(errorHandler);
