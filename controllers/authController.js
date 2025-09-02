@@ -45,13 +45,13 @@ exports.postLogin = [
     const user = await db.readUserByEmail(email);
 
     if (!user) {
-      return res.status(404).json(loginFail);
+      return res.status(401).json(loginFail);
     }
 
     const match = await bcrypt.compare(password, user.password);
 
     if (!match) {
-      return res.status(404).json(loginFail);
+      return res.status(401).json(loginFail);
     }
 
     // Payload for JWT sign
