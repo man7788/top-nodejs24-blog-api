@@ -49,6 +49,16 @@ exports.getComment = async (req, res) => {
 
   const comment = await db.readComment(Number(postId), Number(commentId));
 
+  if (comment === null) {
+    return res.status(404).json({
+      status: 'error',
+      error: {
+        code: 400,
+        message: 'Not found',
+      },
+    });
+  }
+
   res.status(200).json({
     status: 'success',
     data: {
