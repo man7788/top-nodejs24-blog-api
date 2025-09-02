@@ -18,9 +18,5 @@ exports.readUserById = async (id) => {
     },
   });
 
-  if (!user) {
-    return null;
-  }
-
   return user;
 };
