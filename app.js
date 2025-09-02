@@ -16,6 +16,8 @@ require('./utils/passport/passport');
 app.use('/', routes.auth);
 app.use('/posts', routes.post);
 app.use('/posts', routes.comment);
+// Not found route
+app.use(routes.notFound);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
