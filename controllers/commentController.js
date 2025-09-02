@@ -73,11 +73,19 @@ exports.patchComment = async (req, res) => {
   const commentId = req.params.commentId;
   const content = req.body.content;
 
-  const updated = await db.updateComment(
-    Number(postId),
-    Number(commentId),
-    content
-  );
+  const comment = await db.readComment(Number(postId), Number(commentId));
+
+  if (comment === null) {
+    return res.status(404).json({
+      status: 'error',
+      error: {
+        code: 400,
+        message: 'Not found',
+      },
+    });
+  }
+
+  const updated = await db.updateComment(comment.postId, comment.id, content);
 
   res.status(200).json({
     status: 'success',
