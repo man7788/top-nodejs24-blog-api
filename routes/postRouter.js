@@ -1,43 +1,22 @@
 const { Router } = require('express');
-const passport = require('passport');
-
+const { customJwtAuth } = require('../utils/passport/customAuth');
 const postController = require('../controllers/postController');
 
 const postRouter = Router();
 
 // POST request to create new post
-postRouter.post(
-  '/',
-  passport.authenticate('jwt', { session: false }),
-  postController.postBlogPost
-);
+postRouter.post('/', customJwtAuth, postController.postBlogPost);
 
 // GET request to get all posts
-postRouter.get(
-  '/',
-  passport.authenticate('jwt', { session: false }),
-  postController.getAllPosts
-);
+postRouter.get('/', customJwtAuth, postController.getAllPosts);
 
 // GET request to get a single post
-postRouter.get(
-  '/:postId',
-  passport.authenticate('jwt', { session: false }),
-  postController.getPost
-);
+postRouter.get('/:postId', customJwtAuth, postController.getPost);
 
 // Patch request to update a single post
-postRouter.patch(
-  '/:postId',
-  passport.authenticate('jwt', { session: false }),
-  postController.patchPost
-);
+postRouter.patch('/:postId', customJwtAuth, postController.patchPost);
 
 // Delete request to delete a single post
-postRouter.delete(
-  '/:postId',
-  passport.authenticate('jwt', { session: false }),
-  postController.deletePost
-);
+postRouter.delete('/:postId', customJwtAuth, postController.deletePost);
 
 module.exports = postRouter;
