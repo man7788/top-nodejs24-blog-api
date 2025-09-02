@@ -111,7 +111,19 @@ exports.patchPost = async (req, res) => {
 exports.deletePost = async (req, res) => {
   const postId = req.params.postId;
 
-  const deleted = await db.deletePost(Number(postId));
+  const post = await db.readPost(Number(postId));
+
+  if (post === null) {
+    return res.status(404).json({
+      status: 'error',
+      error: {
+        code: 400,
+        message: 'Not found',
+      },
+    });
+  }
+
+  const deleted = await db.deletePost(post.id);
 
   res.status(200).json({
     status: 'success',
