@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { customJwtAuth } = require('../utils/passport/customAuth');
+const { customJwtAuth } = require('../middlewares/passport/customAuth');
 const commentController = require('../controllers/commentController');
 
 const commentRouter = Router();
