@@ -1,8 +1,8 @@
 const express = require('express');
-const { errorHandler } = require('./utils/errors/errorHandler');
+const { errorHandler } = require('./src/middlewares/errors/errorHandler');
 
 // Import all routes from routes/index barrel file
-const routes = require('./routes');
+const routes = require('./src/routes');
 
 const app = express();
 
@@ -10,7 +10,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Invoke Passport configuration
-require('./utils/passport/passport');
+require('./src/middlewares/passport/passport');
 
 // Routes
 app.use('/', routes.auth);
