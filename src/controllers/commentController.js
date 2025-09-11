@@ -1,6 +1,6 @@
-const validator = require('../utils/validators/commentValidator');
+const validator = require('../middlewares/validators/commentValidator');
 const { validationResult } = require('express-validator');
-const db = require('../prisma/queries/commentQuery');
+const db = require('../services/queries/commentQuery');
 
 // Handle comment create on POST
 exports.postComment = [

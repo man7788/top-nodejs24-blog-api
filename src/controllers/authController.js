@@ -1,7 +1,7 @@
 require('dotenv').config();
-const validator = require('../utils/validators/authValidator');
+const validator = require('../middlewares/validators/authValidator');
 const { validationResult } = require('express-validator');
-const db = require('../prisma/queries/userQuery');
+const db = require('../services/queries/userQuery');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 

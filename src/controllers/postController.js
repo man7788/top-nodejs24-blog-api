@@ -1,6 +1,6 @@
-const validator = require('../utils/validators/postValidator');
+const validator = require('../middlewares/validators/postValidator');
 const { validationResult } = require('express-validator');
-const db = require('../prisma/queries/postQuery');
+const db = require('../services/queries/postQuery');
 
 // Handle post create on POST
 exports.postBlogPost = [
