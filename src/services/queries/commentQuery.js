@@ -1,4 +1,4 @@
-const prisma = require('./client');
+const prisma = require('../../config/prisma/client');
 
 // Create a single comment
 exports.createComment = async (postId, name, email, content) => {

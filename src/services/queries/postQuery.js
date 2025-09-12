@@ -1,4 +1,4 @@
-const prisma = require('./client');
+const prisma = require('../../config/prisma/client');
 
 // Create a single post
 exports.createPost = async (author, title, content, published) => {

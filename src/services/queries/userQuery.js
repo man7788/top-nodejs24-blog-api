@@ -1,4 +1,4 @@
-const prisma = require('./client');
+const prisma = require('../../config/prisma/client');
 
 // Read user by email
 exports.readUserByEmail = async (email) => {
