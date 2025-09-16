@@ -35,6 +35,10 @@ beforeAll(async () => {
 });
 
 afterEach(async () => {
+  jest.clearAllMocks();
+});
+
+afterAll(async () => {
   await prisma.post.deleteMany();
   jest.clearAllMocks();
 });
@@ -57,5 +61,17 @@ describe(`post router GET '/'`, () => {
       updatedAt: expect.any(String),
       published: expect.any(Boolean),
     });
+  });
+
+  test('response with empty array if no post', async () => {
+    await prisma.post.deleteMany();
+
+    const response = await request(app).get('/');
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(200);
+    expect(response.body.status).toMatch(/success/);
+    expect(response.body.data.posts).toHaveLength(0);
+    expect(response.body.data.posts).toEqual([]);
   });
 });
