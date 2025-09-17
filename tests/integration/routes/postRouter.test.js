@@ -16,40 +16,39 @@ jest.mock('passport', () => ({
   }),
 }));
 
-beforeAll(async () => {
-  await prisma.post.deleteMany();
-  await prisma.post.createMany({
-    data: [
-      {
-        authorId: 1,
-        title: 'Title for the first post',
-        content: 'Content for the first post.',
-      },
-      {
-        authorId: 1,
-        title: 'Title for the second post',
-        content: 'Content for the second post.',
-      },
-    ],
-  });
-});
-
 afterEach(async () => {
   jest.clearAllMocks();
 });
 
 afterAll(async () => {
   await prisma.post.deleteMany();
-  jest.clearAllMocks();
 });
 
-describe(`post router GET '/'`, () => {
+describe(`GET '/'`, () => {
+  beforeAll(async () => {
+    await prisma.post.deleteMany();
+    await prisma.post.createMany({
+      data: [
+        {
+          authorId: 1,
+          title: 'Title for the first post',
+          content: 'Content for the first post.',
+        },
+        {
+          authorId: 1,
+          title: 'Title for the second post',
+          content: 'Content for the second post.',
+        },
+      ],
+    });
+  });
+
   test('response with all posts', async () => {
     const response = await request(app).get('/');
 
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(200);
-    expect(response.body.status).toMatch(/success/);
+    expect(response.body.status).toMatch(/success/i);
     expect(response.body.data.posts).toHaveLength(2);
 
     // Check all the static properties
@@ -63,15 +62,48 @@ describe(`post router GET '/'`, () => {
     });
   });
 
-  test('response with empty array if no post', async () => {
+  test('response with empty array if no post is found', async () => {
     await prisma.post.deleteMany();
 
     const response = await request(app).get('/');
 
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(200);
-    expect(response.body.status).toMatch(/success/);
+    expect(response.body.status).toMatch(/success/i);
     expect(response.body.data.posts).toHaveLength(0);
     expect(response.body.data.posts).toEqual([]);
+  });
+});
+
+describe(`GET '/:postId'`, () => {
+  beforeEach(async () => {
+    await prisma.post.deleteMany();
+    await prisma.$queryRaw`ALTER SEQUENCE "Post_id_seq" RESTART WITH 1;`;
+    await prisma.post.createMany({
+      data: [
+        {
+          authorId: 1,
+          title: 'Title for the first post',
+          content: 'Content for the first post.',
+        },
+        {
+          authorId: 1,
+          title: 'Title for the second post',
+          content: 'Content for the second post.',
+        },
+      ],
+    });
+  });
+
+  test('response with error if post not found', async () => {
+    await prisma.post.deleteMany();
+
+    const response = await request(app).get('/1001');
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(404);
+    expect(response.body.status).toMatch(/error/i);
+    expect(response.body.error.code).toEqual(404);
+    expect(response.body.error.message).toMatch(/not found/i);
   });
 });
