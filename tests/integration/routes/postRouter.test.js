@@ -5,13 +5,13 @@ const request = require('supertest');
 const express = require('express');
 const app = express();
 
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 app.use('/', postRouter);
 
 jest.mock('passport', () => ({
   use: jest.fn(),
   authenticate: jest.fn(() => (req, res, next) => {
-    req.user = { id: 'mockUserId' };
+    req.user = { id: '1' };
     next();
   }),
 }));
@@ -22,6 +22,30 @@ afterEach(async () => {
 
 afterAll(async () => {
   await prisma.post.deleteMany();
+});
+
+describe(`POST '/'`, () => {
+  beforeEach(async () => {
+    await prisma.post.deleteMany();
+    await prisma.$queryRaw`ALTER SEQUENCE "Post_id_seq" RESTART WITH 1;`;
+  });
+
+  test('response form validation error', async () => {
+    const response = await request(app).post('/');
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(400);
+    expect(response.body.status).toMatch(/error/i);
+    expect(response.body.error.code).toEqual(400);
+    expect(response.body.error.message).toEqual(expect.any(String));
+
+    const error = { field: expect.any(String), message: expect.any(String) };
+
+    expect(response.body.error.details).toHaveLength(2);
+    expect(response.body.error.details).toEqual(
+      expect.arrayContaining([error, error]),
+    );
+  });
 });
 
 describe(`GET '/'`, () => {
