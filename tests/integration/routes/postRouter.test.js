@@ -106,4 +106,25 @@ describe(`GET '/:postId'`, () => {
     expect(response.body.error.code).toEqual(404);
     expect(response.body.error.message).toMatch(/not found/i);
   });
+
+  test('response with a single post', async () => {
+    const postId = 1;
+
+    const response = await request(app).get(`/${postId}`);
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(200);
+    expect(response.body.status).toMatch(/success/i);
+
+    // Check all the static properties
+    expect(response.body.data.post).toMatchObject({
+      id: postId,
+      authorId: expect.any(Number),
+      content: expect.any(String),
+      createdAt: expect.any(String),
+      updatedAt: expect.any(String),
+      published: expect.any(Boolean),
+      comments: expect.any(Array),
+    });
+  });
 });
