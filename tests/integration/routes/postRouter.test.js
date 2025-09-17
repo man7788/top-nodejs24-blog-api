@@ -46,6 +46,24 @@ describe(`POST '/'`, () => {
       expect.arrayContaining([error, error]),
     );
   });
+
+  test('response post create result', async () => {
+    const payload = {
+      user: 1,
+      title: 'Create new post',
+      content: 'Create new post content',
+    };
+
+    const response = await request(app)
+      .post('/')
+      .set('Content-Type', 'application/json')
+      .send(payload);
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(201);
+    expect(response.body.status).toMatch(/success/i);
+    expect(response.body.data.post.id).toEqual(1);
+  });
 });
 
 describe(`GET '/'`, () => {
