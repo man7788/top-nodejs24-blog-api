@@ -219,4 +219,32 @@ describe(`PATCH '/:postId'`, () => {
       expect.arrayContaining([error, error, error]),
     );
   });
+
+  test('response post patch result', async () => {
+    const payload = {
+      title: 'Patch post title',
+      content: 'Patch post content',
+      published: true,
+    };
+
+    const response = await request(app)
+      .patch('/1')
+      .set('Content-Type', 'application/json')
+      .send(payload);
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(200);
+    expect(response.body.status).toMatch(/success/i);
+
+    // Check all the static properties
+    expect(response.body.data.post).toMatchObject({
+      id: 1,
+      authorId: expect.any(Number),
+      title: 'Patch post title',
+      content: 'Patch post content',
+      createdAt: expect.any(String),
+      updatedAt: expect.any(String),
+      published: true,
+    });
+  });
 });
