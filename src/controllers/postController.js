@@ -64,7 +64,7 @@ exports.getPost = async (req, res) => {
     return res.status(404).json({
       status: 'error',
       error: {
-        code: 400,
+        code: 404,
         message: 'Not found',
       },
     });
@@ -79,33 +79,57 @@ exports.getPost = async (req, res) => {
 };
 
 // Handle update a single post on PATCH
-exports.patchPost = async (req, res) => {
-  const postId = req.params.postId;
-  const title = req.body.title;
-  const content = req.body.content;
-  const published = req.body.published;
+exports.patchPost = [
+  validator.validatePatch,
+  async (req, res) => {
+    const postId = req.params.postId;
 
-  const post = await db.readPost(Number(postId));
+    const post = await db.readPost(Number(postId));
 
-  if (post === null) {
-    return res.status(404).json({
-      status: 'error',
-      error: {
-        code: 400,
-        message: 'Not found',
+    if (post === null) {
+      return res.status(404).json({
+        status: 'error',
+        error: {
+          code: 404,
+          message: 'Not found',
+        },
+      });
+    }
+
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      const errorArray = errors.array();
+      const resMessage = [];
+
+      errorArray.forEach((error) => {
+        resMessage.push({ field: error.path, message: error.msg });
+      });
+
+      return res.status(400).json({
+        status: 'error',
+        error: {
+          code: 400,
+          message: 'Post patch form validation failed',
+          details: resMessage,
+        },
+      });
+    }
+
+    const title = req.body.title;
+    const content = req.body.content;
+    const published = req.body.published;
+
+    const updated = await db.updatePost(post.id, title, content, published);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        post: updated,
       },
     });
-  }
-
-  const updated = await db.updatePost(post.id, title, content, published);
-
-  res.status(200).json({
-    status: 'success',
-    data: {
-      post: updated,
-    },
-  });
-};
+  },
+];
 
 // Handle delete a single post on DELETE
 exports.deletePost = async (req, res) => {
