@@ -248,3 +248,29 @@ describe(`PATCH '/:postId'`, () => {
     });
   });
 });
+
+describe(`DELETE '/:postId'`, () => {
+  beforeEach(async () => {
+    await prisma.post.deleteMany();
+    await prisma.$queryRaw`ALTER SEQUENCE "Post_id_seq" RESTART WITH 1;`;
+    await prisma.post.createMany({
+      data: [
+        {
+          authorId: 1,
+          title: 'Title for the first post',
+          content: 'Content for the first post.',
+        },
+      ],
+    });
+  });
+
+  test('response with error if post not found', async () => {
+    const response = await request(app).delete('/1001');
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(404);
+    expect(response.body.status).toMatch(/error/i);
+    expect(response.body.error.code).toEqual(404);
+    expect(response.body.error.message).toMatch(/not found/i);
+  });
+});
