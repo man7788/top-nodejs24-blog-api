@@ -273,4 +273,13 @@ describe(`DELETE '/:postId'`, () => {
     expect(response.body.error.code).toEqual(404);
     expect(response.body.error.message).toMatch(/not found/i);
   });
+
+  test('response with post delte result', async () => {
+    const response = await request(app).delete('/1');
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(200);
+    expect(response.body.status).toMatch(/success/i);
+    expect(response.body.data.post.id).toEqual(1);
+  });
 });
