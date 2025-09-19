@@ -195,4 +195,28 @@ describe(`PATCH '/:postId'`, () => {
     expect(response.body.error.code).toEqual(404);
     expect(response.body.error.message).toMatch(/not found/i);
   });
+
+  test('response form validation error', async () => {
+    const payload = {
+      published: 'not boolean value',
+    };
+
+    const response = await request(app)
+      .patch('/1')
+      .set('Content-Type', 'application/json')
+      .send(payload);
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(400);
+    expect(response.body.status).toMatch(/error/i);
+    expect(response.body.error.code).toEqual(400);
+    expect(response.body.error.message).toEqual(expect.any(String));
+
+    const error = { field: expect.any(String), message: expect.any(String) };
+
+    expect(response.body.error.details).toHaveLength(3);
+    expect(response.body.error.details).toEqual(
+      expect.arrayContaining([error, error, error]),
+    );
+  });
 });
