@@ -1,4 +1,4 @@
-const postRouter = require('../../../src/controllers/postController');
+const postController = require('../../../src/controllers/postController');
 const db = require('../../../src/services/queries/postQuery');
 
 afterEach(async () => {
@@ -46,7 +46,7 @@ describe(`Get all posts controller`, () => {
     const req = {};
     const res = mockResponse();
 
-    await postRouter.getAllPosts(req, res);
+    await postController.getAllPosts(req, res);
 
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(200);
@@ -76,6 +76,35 @@ describe(`Get all posts controller`, () => {
             comments: [],
           },
         ],
+      },
+    });
+  });
+
+  test('response with empty array if no post found', async () => {
+    const posts = [];
+
+    db.readAllPosts = jest.fn();
+    db.readAllPosts.mockReturnValue(posts);
+
+    const mockResponse = () => {
+      const res = {};
+      res.status = jest.fn().mockReturnValue(res);
+      res.json = jest.fn().mockReturnValue(res);
+      return res;
+    };
+
+    const req = {};
+    const res = mockResponse();
+
+    await postController.getAllPosts(req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 'success',
+      data: {
+        posts: [],
       },
     });
   });
