@@ -52,6 +52,42 @@ describe(`Post blog post controller`, () => {
       },
     });
   });
+
+  test('response post create result', async () => {
+    validationResult.mockImplementation(() => ({
+      isEmpty: () => true,
+    }));
+
+    const post = { id: 1 };
+
+    db.createPost = jest.fn();
+    db.createPost.mockReturnValue(post);
+
+    const mockResponse = () => {
+      const res = {};
+      res.status = jest.fn().mockReturnValue(res);
+      res.json = jest.fn().mockReturnValue(res);
+      return res;
+    };
+
+    const req = {
+      user: { id: 1 },
+      body: { title: 'Post title', content: 'Post content', published: true },
+    };
+    const res = mockResponse();
+
+    // Second anonymous function of "postBlogPost" controller array
+    await postController.postBlogPost[1](req, res);
+
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 'success',
+      data: {
+        post: { id: post.id },
+      },
+    });
+  });
 });
 
 describe(`Get all posts controller`, () => {
