@@ -60,4 +60,32 @@ describe('Non production environment', () => {
       }),
     );
   });
+
+  test('response with fallback 500 status code and error message', async () => {
+    const mockResponse = () => {
+      const res = {};
+      res.status = jest.fn().mockReturnValue(res);
+      res.json = jest.fn().mockReturnValue(res);
+      return res;
+    };
+
+    const err = { message: 'Error message' };
+    const req = {};
+    const next = jest.fn();
+    const res = mockResponse();
+
+    errorHandler(err, req, res, next);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: 'error',
+        error: expect.objectContaining({
+          code: 500,
+          message: 'Error message',
+        }),
+      }),
+    );
+  });
 });
