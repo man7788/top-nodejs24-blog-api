@@ -117,3 +117,35 @@ describe('Non production environment', () => {
     );
   });
 });
+
+describe('Production environment', () => {
+  test('response with 500 status code and generic error message', async () => {
+    process.env.NODE_ENV = 'production';
+
+    const mockResponse = () => {
+      const res = {};
+      res.status = jest.fn().mockReturnValue(res);
+      res.json = jest.fn().mockReturnValue(res);
+      return res;
+    };
+
+    const err = { statudCode: 500, message: 'Error message' };
+    const req = {};
+    const next = jest.fn();
+    const res = mockResponse();
+
+    errorHandler(err, req, res, next);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: 'error',
+        error: expect.objectContaining({
+          code: 500,
+          message: 'Internal server error. Something went wrong at our end.',
+        }),
+      }),
+    );
+  });
+});
