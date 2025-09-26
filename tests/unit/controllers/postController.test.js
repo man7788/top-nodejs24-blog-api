@@ -40,6 +40,7 @@ describe(`Post blog post controller`, () => {
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledTimes(1);
     expect(res.json).toHaveBeenCalledWith({
       status: 'error',
       error: {
@@ -81,6 +82,7 @@ describe(`Post blog post controller`, () => {
 
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledTimes(1);
     expect(res.json).toHaveBeenCalledWith({
       status: 'success',
       data: {
@@ -135,7 +137,7 @@ describe(`Get all posts controller`, () => {
 
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledTimes(1);
     expect(res.json).toHaveBeenCalledWith({
       status: 'success',
       data: {
@@ -185,7 +187,7 @@ describe(`Get all posts controller`, () => {
 
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledTimes(1);
     expect(res.json).toHaveBeenCalledWith({
       status: 'success',
       data: {
