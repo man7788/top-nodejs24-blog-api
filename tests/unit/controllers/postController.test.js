@@ -240,3 +240,38 @@ describe(`Get single post controller`, () => {
     });
   });
 });
+
+describe(`Patch a single post controller`, () => {
+  test('response with error if post not found', async () => {
+    validationResult.mockImplementation(() => ({
+      isEmpty: () => true,
+    }));
+
+    db.readPost = jest.fn();
+    db.readPost.mockReturnValue(null);
+
+    const mockResponse = () => {
+      const res = {};
+      res.status = jest.fn().mockReturnValue(res);
+      res.json = jest.fn().mockReturnValue(res);
+      return res;
+    };
+
+    const req = { params: { postId: 1 } };
+    const res = mockResponse();
+
+    // Second anonymous function of "patchPost" controller array
+    await postController.patchPost[1](req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 'error',
+      error: {
+        code: 404,
+        message: 'Not found',
+      },
+    });
+  });
+});
