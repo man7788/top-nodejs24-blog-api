@@ -4,7 +4,7 @@ const {
 
 jest.spyOn(console, 'error').mockImplementation(() => {});
 
-describe('Non production environment', () => {
+describe('Non-production environment', () => {
   test('response with non 500 status code and error message', async () => {
     const mockResponse = () => {
       const res = {};
@@ -55,7 +55,7 @@ describe('Non production environment', () => {
         status: 'error',
         error: expect.objectContaining({
           code: 401,
-          message: 'Internal Server Error',
+          message: 'Client Error',
         }),
       }),
     );
@@ -173,7 +173,7 @@ describe('Production environment', () => {
         status: 'error',
         error: expect.objectContaining({
           code: 401,
-          message: 'Internal Server Error',
+          message: 'Client Error',
         }),
       }),
     );
