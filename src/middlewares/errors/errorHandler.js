@@ -4,7 +4,13 @@ const errorHandler = (err, req, res, next) => {
 
   // Determine the status code and message
   let statusCode = err.statusCode || 500;
-  let message = err.message || 'Internal Server Error';
+  let message;
+
+  if (statusCode < 500) {
+    message = err.message || 'Client Error';
+  } else {
+    message = err.message || 'Internal Server Error';
+  }
 
   // Customize error response based on error type or environment
   if (process.env.NODE_ENV === 'production') {
