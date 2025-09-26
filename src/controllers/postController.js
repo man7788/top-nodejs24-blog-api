@@ -110,7 +110,7 @@ exports.patchPost = [
         status: 'error',
         error: {
           code: 400,
-          message: 'Post patch form validation failed',
+          message: 'Post patch form validation failed.',
           details: resMessage,
         },
       });
