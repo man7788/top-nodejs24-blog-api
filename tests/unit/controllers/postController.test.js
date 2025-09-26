@@ -178,6 +178,9 @@ describe(`Get all posts controller`, () => {
 
 describe(`Get single post controller`, () => {
   test('response with error if post not found', async () => {
+    db.readPost = jest.fn();
+    db.readPost.mockReturnValue(null);
+
     const mockResponse = () => {
       const res = {};
       res.status = jest.fn().mockReturnValue(res);
@@ -185,7 +188,7 @@ describe(`Get single post controller`, () => {
       return res;
     };
 
-    const req = { params: { postId: 1001 } };
+    const req = { params: { postId: 1 } };
     const res = mockResponse();
 
     await postController.getPost(req, res);
@@ -198,6 +201,44 @@ describe(`Get single post controller`, () => {
       error: {
         code: 404,
         message: 'Not found',
+      },
+    });
+  });
+
+  test('response with a single post', async () => {
+    const post = {
+      id: 1,
+      authorId: 1,
+      title: 'Post title 1',
+      content: 'Post content 1',
+      createdAt: new Date(),
+      updateddAt: new Date(),
+      published: false,
+      comments: [],
+    };
+
+    db.readPost = jest.fn();
+    db.readPost.mockReturnValue(post);
+
+    const mockResponse = () => {
+      const res = {};
+      res.status = jest.fn().mockReturnValue(res);
+      res.json = jest.fn().mockReturnValue(res);
+      return res;
+    };
+
+    const req = { params: { postId: 1 } };
+    const res = mockResponse();
+
+    await postController.getPost(req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 'success',
+      data: {
+        post,
       },
     });
   });
