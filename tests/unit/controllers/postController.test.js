@@ -141,28 +141,7 @@ describe(`Get all posts controller`, () => {
     expect(res.json).toHaveBeenCalledWith({
       status: 'success',
       data: {
-        posts: [
-          {
-            id: 1,
-            authorId: 1,
-            title: 'Post title 1',
-            content: 'Post content 1',
-            createdAt,
-            updateddAt,
-            published: false,
-            comments: [],
-          },
-          {
-            id: 2,
-            authorId: 1,
-            title: 'Post title 2',
-            content: 'Post content 2',
-            createdAt,
-            updateddAt,
-            published: true,
-            comments: [],
-          },
-        ],
+        posts,
       },
     });
   });
@@ -191,7 +170,7 @@ describe(`Get all posts controller`, () => {
     expect(res.json).toHaveBeenCalledWith({
       status: 'success',
       data: {
-        posts: [],
+        posts,
       },
     });
   });
