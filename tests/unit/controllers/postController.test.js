@@ -418,4 +418,51 @@ describe(`Delete a single post controller`, () => {
       },
     });
   });
+
+  test('response with post delete result', async () => {
+    validationResult.mockImplementation(() => ({
+      isEmpty: () => true,
+    }));
+
+    const createdAt = new Date();
+    const post = {
+      id: 1,
+      authorId: 1,
+      title: 'Post title 1',
+      content: 'Post content 1',
+      createdAt,
+      updatedAt: createdAt,
+      published: false,
+      comments: [],
+    };
+
+    db.readPost = jest.fn();
+    db.readPost.mockReturnValue(post);
+
+    const mockResponse = () => {
+      const res = {};
+      res.status = jest.fn().mockReturnValue(res);
+      res.json = jest.fn().mockReturnValue(res);
+      return res;
+    };
+
+    const req = { params: { postId: 1 } };
+    const res = mockResponse();
+
+    db.deletePost = jest.fn();
+    db.deletePost.mockReturnValue(post);
+
+    // Second anonymous function of "deletePost" controller array
+    await postController.deletePost(req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 'success',
+      data: {
+        post: { id: post.id },
+      },
+    });
+  });
 });
