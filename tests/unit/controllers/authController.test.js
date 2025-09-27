@@ -2,6 +2,7 @@ const authController = require('../../../src/controllers/authController');
 const { validationResult } = require('express-validator');
 const db = require('../../../src/services/queries/userQuery');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 // To mock a named export, use the factory function pattern in jest.mock()
 jest.mock('express-validator', () => ({
@@ -14,6 +15,12 @@ jest.mock('bcryptjs', () => ({
 
 jest.mock('../../../src/middlewares/validators/authValidator', () => ({
   validateLogin: jest.fn(),
+}));
+
+const bufferSpy = jest.spyOn(Buffer, 'from');
+
+jest.mock('jsonwebtoken', () => ({
+  sign: jest.fn(),
 }));
 
 afterEach(async () => {
@@ -125,6 +132,54 @@ describe(`Post login controller`, () => {
         code: 401,
         message: 'Invalid email or password.',
         details: [{ field: 'generic', message: 'Invalid email or password.' }],
+      },
+    });
+  });
+
+  test('response with jwt token', async () => {
+    process.env.JWT_PRIV_KEY = 'mockedPrivateKey';
+    process.env.JWT_EXPIRE_TIME = '1h';
+
+    validationResult.mockImplementation(() => ({
+      isEmpty: () => true,
+    }));
+
+    bcrypt.compare.mockResolvedValue(true);
+
+    bufferSpy.mockImplementation(() => ({
+      // Mock the toString method of the returned object
+      toString: jest.fn(() => 'mocked string'),
+    }));
+
+    const mockedToken = 'mockedToken';
+    jwt.sign.mockReturnValue(mockedToken);
+
+    db.readUserByEmail = jest.fn();
+    db.readUserByEmail.mockReturnValue({
+      id: 1,
+      username: 'foobar',
+    });
+
+    const mockResponse = () => {
+      const res = {};
+      res.status = jest.fn().mockReturnValue(res);
+      res.json = jest.fn().mockReturnValue(res);
+      return res;
+    };
+
+    const req = { body: { email: 'foo@bar.com', password: 'foobar' } };
+    const res = mockResponse();
+
+    // Second anonymous function of "postBlogPost" controller array
+    await authController.postLogin[1](req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 'success',
+      data: {
+        token: mockedToken,
       },
     });
   });
