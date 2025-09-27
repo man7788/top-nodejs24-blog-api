@@ -317,4 +317,70 @@ describe(`Patch a single post controller`, () => {
       },
     });
   });
+
+  test('response with post patch result', async () => {
+    validationResult.mockImplementation(() => ({
+      isEmpty: () => true,
+    }));
+
+    const createdAt = new Date();
+    const post = {
+      id: 1,
+      authorId: 1,
+      title: 'Post title 1',
+      content: 'Post content 1',
+      createdAt,
+      updatedAt: createdAt,
+      published: false,
+      comments: [],
+    };
+
+    db.readPost = jest.fn();
+    db.readPost.mockReturnValue(post);
+
+    const mockResponse = () => {
+      const res = {};
+      res.status = jest.fn().mockReturnValue(res);
+      res.json = jest.fn().mockReturnValue(res);
+      return res;
+    };
+
+    const req = {
+      params: { postId: 1 },
+      body: {
+        title: 'Updated post 1 title',
+        content: 'Updated post 1 content',
+        published: true,
+      },
+    };
+    const res = mockResponse();
+
+    const futureDate = Date.now() + 1 * 60 * 60 * 1000; // Add 1 hour (in milliseconds)
+    const updatedAt = new Date(futureDate).getTime();
+    const updatedPost = {
+      id: post.id,
+      authorId: post.authorId,
+      title: req.body.title,
+      content: req.body.content,
+      createdAt,
+      updatedAt,
+      published: true,
+    };
+
+    db.updatePost = jest.fn();
+    db.updatePost.mockReturnValue(updatedPost);
+
+    // Second anonymous function of "patchPost" controller array
+    await postController.patchPost[1](req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 'success',
+      data: {
+        post: updatedPost,
+      },
+    });
+  });
 });
