@@ -1,10 +1,15 @@
 const authController = require('../../../src/controllers/authController');
 const { validationResult } = require('express-validator');
 const db = require('../../../src/services/queries/userQuery');
+const bcrypt = require('bcryptjs');
 
 // To mock a named export, use the factory function pattern in jest.mock()
 jest.mock('express-validator', () => ({
   validationResult: jest.fn(),
+}));
+
+jest.mock('bcryptjs', () => ({
+  compare: jest.fn(),
 }));
 
 jest.mock('../../../src/middlewares/validators/authValidator', () => ({
@@ -61,6 +66,42 @@ describe(`Post login controller`, () => {
 
     db.readUserByEmail = jest.fn();
     db.readUserByEmail.mockReturnValue(null);
+
+    const mockResponse = () => {
+      const res = {};
+      res.status = jest.fn().mockReturnValue(res);
+      res.json = jest.fn().mockReturnValue(res);
+      return res;
+    };
+
+    const req = { body: { email: 'foo@bar.com', password: 'foobar' } };
+    const res = mockResponse();
+
+    // Second anonymous function of "postBlogPost" controller array
+    await authController.postLogin[1](req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 'error',
+      error: {
+        code: 401,
+        message: 'Invalid email or password.',
+        details: [{ field: 'generic', message: 'Invalid email or password.' }],
+      },
+    });
+  });
+
+  test('response with error if password invalid', async () => {
+    validationResult.mockImplementation(() => ({
+      isEmpty: () => true,
+    }));
+
+    bcrypt.compare.mockResolvedValue(false);
+
+    db.readUserByEmail = jest.fn();
+    db.readUserByEmail.mockReturnValue({ id: 1 });
 
     const mockResponse = () => {
       const res = {};
