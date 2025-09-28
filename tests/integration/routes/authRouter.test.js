@@ -1,3 +1,4 @@
+const prisma = require('../../../src/config/prisma/client');
 const authRouter = require('../../../src/routes/authRouter');
 
 const request = require('supertest');
@@ -7,7 +8,24 @@ const app = express();
 app.use(express.json());
 app.use('/', authRouter);
 
+afterAll(async () => {
+  await prisma.user.deleteMany();
+});
+
 describe(`POST '/login'`, () => {
+  beforeEach(async () => {
+    await prisma.user.deleteMany();
+    await prisma.$queryRaw`ALTER SEQUENCE "User_id_seq" RESTART WITH 1;`;
+    await prisma.user.create({
+      data: {
+        email: 'foo@bar.com',
+        name: 'namePlaceholder',
+        password: 'passwordPlaceholder',
+        admin: true,
+      },
+    });
+  });
+
   test('response form validation error', async () => {
     const response = await request(app).post('/login');
 
@@ -27,6 +45,31 @@ describe(`POST '/login'`, () => {
             field: 'password',
             message: expect.any(String),
           }),
+        ],
+      },
+    });
+  });
+
+  test('response with error if user not found', async () => {
+    const payload = { email: 'john@doe.com', password: 'foobar' };
+
+    const response = await request(app)
+      .post('/login')
+      .set('Content-Type', 'application/json')
+      .send(payload);
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(401);
+    expect(response.body).toEqual({
+      status: 'error',
+      error: {
+        code: 401,
+        message: expect.any(String),
+        details: [
+          {
+            field: 'generic',
+            message: expect.any(String),
+          },
         ],
       },
     });
