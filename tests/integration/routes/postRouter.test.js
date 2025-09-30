@@ -35,16 +35,18 @@ describe(`POST '/'`, () => {
 
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(400);
-    expect(response.body.status).toMatch(/error/i);
-    expect(response.body.error.code).toEqual(400);
-    expect(response.body.error.message).toEqual(expect.any(String));
+    expect(response.body).toEqual({
+      status: 'error',
+      error: {
+        code: 400,
+        message: expect.any(String),
+        details: [
+          { field: 'title', message: expect.any(String) },
 
-    const error = { field: expect.any(String), message: expect.any(String) };
-
-    expect(response.body.error.details).toHaveLength(2);
-    expect(response.body.error.details).toEqual(
-      expect.arrayContaining([error, error]),
-    );
+          { field: 'content', message: expect.any(String) },
+        ],
+      },
+    });
   });
 
   test('response post create result', async () => {
