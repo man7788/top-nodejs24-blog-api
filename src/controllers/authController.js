@@ -47,7 +47,6 @@ exports.postLogin = [
     if (!user) {
       return res.status(401).json(loginFail);
     }
-
     const match = await bcrypt.compare(password, user.password);
 
     if (!match) {
@@ -55,10 +54,15 @@ exports.postLogin = [
     }
 
     // Payload for JWT sign
-    const payload = { sub: user.id, username: user.username, admin: true };
+    const payload = {
+      sub: user.id,
+      user: user.name,
+      admin: user.admin,
+    };
+
     // Convert private key from pem to base64 format
     const privateKey = Buffer.from(process.env.JWT_PRIV_KEY, 'base64').toString(
-      'ascii'
+      'ascii',
     );
 
     const token = jwt.sign(payload, privateKey, {
