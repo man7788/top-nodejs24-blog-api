@@ -68,32 +68,55 @@ exports.getComment = async (req, res) => {
 };
 
 // Handle comment update on UPDATE
-exports.patchComment = async (req, res) => {
-  const postId = req.params.postId;
-  const commentId = req.params.commentId;
-  const content = req.body.content;
+exports.patchComment = [
+  validator.patchComment,
+  async (req, res) => {
+    const errors = validationResult(req);
 
-  const comment = await db.readComment(Number(postId), Number(commentId));
+    if (!errors.isEmpty()) {
+      const errorArray = errors.array();
+      const resMessage = [];
 
-  if (comment === null) {
-    return res.status(404).json({
-      status: 'error',
-      error: {
-        code: 400,
-        message: 'Not found',
+      errorArray.forEach((error) => {
+        resMessage.push({ field: error.path, message: error.msg });
+      });
+
+      return res.status(400).json({
+        status: 'error',
+        error: {
+          code: 400,
+          message: 'Patch comment form validation failed.',
+          details: resMessage,
+        },
+      });
+    }
+
+    const postId = req.params.postId;
+    const commentId = req.params.commentId;
+
+    const comment = await db.readComment(Number(postId), Number(commentId));
+
+    if (comment === null) {
+      return res.status(404).json({
+        status: 'error',
+        error: {
+          code: 400,
+          message: 'Not found',
+        },
+      });
+    }
+
+    const content = req.body.content;
+    const updated = await db.updateComment(comment.postId, comment.id, content);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        comment: { id: updated.id },
       },
     });
-  }
-
-  const updated = await db.updateComment(comment.postId, comment.id, content);
-
-  res.status(200).json({
-    status: 'success',
-    data: {
-      comment: { id: updated.id },
-    },
-  });
-};
+  },
+];
 
 // Handle comment delete on DELETE
 exports.deleteComment = async (req, res) => {
