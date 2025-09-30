@@ -124,9 +124,11 @@ describe(`GET '/'`, () => {
 
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(200);
-    expect(response.body.status).toMatch(/success/i);
     expect(response.body.data.posts).toHaveLength(0);
-    expect(response.body.data.posts).toEqual([]);
+    expect(response.body).toEqual({
+      status: 'success',
+      data: { posts: [] },
+    });
   });
 });
 
