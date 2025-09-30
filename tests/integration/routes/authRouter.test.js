@@ -1,4 +1,3 @@
-const prisma = require('../../../src/config/prisma/client');
 const authRouter = require('../../../src/routes/authRouter');
 
 const bcrypt = require('bcryptjs');
@@ -25,24 +24,7 @@ afterEach(async () => {
   jest.clearAllMocks();
 });
 
-afterAll(async () => {
-  await prisma.user.deleteMany();
-});
-
 describe(`POST '/login'`, () => {
-  beforeEach(async () => {
-    await prisma.user.deleteMany();
-    await prisma.$queryRaw`ALTER SEQUENCE "User_id_seq" RESTART WITH 1;`;
-    await prisma.user.create({
-      data: {
-        email: 'foo@bar.com',
-        name: 'namePlaceholder',
-        password: 'passwordPlaceholder',
-        admin: true,
-      },
-    });
-  });
-
   test('response form validation error', async () => {
     const response = await request(app).post('/login');
 
