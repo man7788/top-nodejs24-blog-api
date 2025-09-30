@@ -30,20 +30,15 @@ describe(`POST '/login'`, () => {
 
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(400);
-    expect(response.body).toMatchObject({
+    expect(response.body).toEqual({
       status: 'error',
       error: {
         code: 400,
         message: expect.any(String),
         details: [
-          expect.objectContaining({
-            field: 'email',
-            message: expect.any(String),
-          }),
-          expect.objectContaining({
-            field: 'password',
-            message: expect.any(String),
-          }),
+          { field: 'email', message: expect.any(String) },
+
+          { field: 'password', message: expect.any(String) },
         ],
       },
     });
