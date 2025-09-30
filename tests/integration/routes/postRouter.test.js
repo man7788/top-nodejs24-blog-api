@@ -258,6 +258,8 @@ describe(`PATCH '/:postId'`, () => {
   });
 
   test('response post patch result', async () => {
+    const postId = 1;
+
     const payload = {
       title: 'Patch post title',
       content: 'Patch post content',
@@ -265,23 +267,25 @@ describe(`PATCH '/:postId'`, () => {
     };
 
     const response = await request(app)
-      .patch('/1')
+      .patch(`/${postId}`)
       .set('Content-Type', 'application/json')
       .send(payload);
 
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(200);
-    expect(response.body.status).toMatch(/success/i);
-
-    // Check all the static properties
-    expect(response.body.data.post).toMatchObject({
-      id: 1,
-      authorId: expect.any(Number),
-      title: 'Patch post title',
-      content: 'Patch post content',
-      createdAt: expect.any(String),
-      updatedAt: expect.any(String),
-      published: true,
+    expect(response.body).toEqual({
+      status: 'success',
+      data: {
+        post: {
+          id: postId,
+          authorId: expect.any(Number),
+          title: 'Patch post title',
+          content: 'Patch post content',
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+          published: true,
+        },
+      },
     });
   });
 });
@@ -306,9 +310,13 @@ describe(`DELETE '/:postId'`, () => {
 
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(404);
-    expect(response.body.status).toMatch(/error/i);
-    expect(response.body.error.code).toEqual(404);
-    expect(response.body.error.message).toMatch(/not found/i);
+    expect(response.body).toEqual({
+      status: 'error',
+      error: {
+        code: 404,
+        message: expect.any(String),
+      },
+    });
   });
 
   test('response with post delte result', async () => {
