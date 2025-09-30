@@ -31,3 +31,14 @@ exports.validateComment = [
     .withMessage(`Content ${lengthErr255}`)
     .escape(),
 ];
+
+exports.patchComment = [
+  body('content')
+    .trim()
+    .notEmpty()
+    .withMessage(`Content ${emptyErr}`)
+    .bail()
+    .isLength({ max: 255 })
+    .withMessage(`Content ${lengthErr255}`)
+    .escape(),
+];
