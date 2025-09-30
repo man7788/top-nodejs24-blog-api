@@ -30,7 +30,7 @@ describe(`POST '/'`, () => {
     await prisma.$queryRaw`ALTER SEQUENCE "Post_id_seq" RESTART WITH 1;`;
   });
 
-  test('response form validation error', async () => {
+  test('response with form validation error', async () => {
     const response = await request(app).post('/');
 
     expect(response.headers['content-type']).toMatch(/json/);
@@ -49,7 +49,7 @@ describe(`POST '/'`, () => {
     });
   });
 
-  test('response post create result', async () => {
+  test('response with post create result', async () => {
     const payload = {
       user: 1,
       title: 'Create new post',
@@ -63,8 +63,12 @@ describe(`POST '/'`, () => {
 
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(201);
-    expect(response.body.status).toMatch(/success/i);
-    expect(response.body.data.post.id).toEqual(1);
+    expect(response.body).toEqual({
+      status: 'success',
+      data: {
+        post: { id: expect.any(Number) },
+      },
+    });
   });
 });
 
