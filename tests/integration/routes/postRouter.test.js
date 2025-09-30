@@ -175,17 +175,20 @@ describe(`GET '/:postId'`, () => {
 
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(200);
-    expect(response.body.status).toMatch(/success/i);
-
-    // Check all the static properties
-    expect(response.body.data.post).toMatchObject({
-      id: postId,
-      authorId: expect.any(Number),
-      content: expect.any(String),
-      createdAt: expect.any(String),
-      updatedAt: expect.any(String),
-      published: expect.any(Boolean),
-      comments: expect.any(Array),
+    expect(response.body).toEqual({
+      status: 'success',
+      data: {
+        post: {
+          id: postId,
+          authorId: expect.any(Number),
+          title: expect.any(String),
+          content: expect.any(String),
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+          published: expect.any(Boolean),
+          comments: expect.any(Array),
+        },
+      },
     });
   });
 });
