@@ -96,17 +96,24 @@ describe(`GET '/'`, () => {
 
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(200);
-    expect(response.body.status).toMatch(/success/i);
     expect(response.body.data.posts).toHaveLength(2);
+    expect(response.body).toEqual({
+      status: 'success',
+      data: { posts: expect.any(Array) },
+    });
 
-    // Check all the static properties
-    expect(response.body.data.posts[0]).toMatchObject({
-      id: expect.any(Number),
-      authorId: expect.any(Number),
-      content: expect.any(String),
-      createdAt: expect.any(String),
-      updatedAt: expect.any(String),
-      published: expect.any(Boolean),
+    const posts = response.body.data.posts;
+
+    posts.forEach((post) => {
+      expect(post).toEqual({
+        id: expect.any(Number),
+        authorId: expect.any(Number),
+        title: expect.any(String),
+        content: expect.any(String),
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+        published: expect.any(Boolean),
+      });
     });
   });
 
