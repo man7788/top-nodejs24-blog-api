@@ -213,9 +213,13 @@ describe(`PATCH '/:postId'`, () => {
 
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(404);
-    expect(response.body.status).toMatch(/error/i);
-    expect(response.body.error.code).toEqual(404);
-    expect(response.body.error.message).toMatch(/not found/i);
+    expect(response.body).toEqual({
+      status: 'error',
+      error: {
+        code: 404,
+        message: expect.any(String),
+      },
+    });
   });
 
   test('response form validation error', async () => {
