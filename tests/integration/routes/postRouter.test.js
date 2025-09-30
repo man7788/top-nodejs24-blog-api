@@ -320,11 +320,17 @@ describe(`DELETE '/:postId'`, () => {
   });
 
   test('response with post delte result', async () => {
-    const response = await request(app).delete('/1');
+    const postId = 1;
+
+    const response = await request(app).delete(`/${postId}`);
 
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(200);
-    expect(response.body.status).toMatch(/success/i);
-    expect(response.body.data.post.id).toEqual(1);
+    expect(response.body).toEqual({
+      status: 'success',
+      data: {
+        post: { id: postId },
+      },
+    });
   });
 });
