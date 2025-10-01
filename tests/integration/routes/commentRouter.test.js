@@ -177,4 +177,18 @@ describe(`PATCH '/:postId/comments/:commentId'`, () => {
       },
     });
   });
+
+  test('response with comment not found error', async () => {
+    const response = await request(app).get('/1/comments/1001');
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(404);
+    expect(response.body).toEqual({
+      status: 'error',
+      error: {
+        code: 404,
+        message: expect.any(String),
+      },
+    });
+  });
 });
