@@ -31,14 +31,12 @@ describe(`POST '/:postId/comments'`, () => {
     await prisma.post.deleteMany();
     await prisma.$queryRaw`ALTER SEQUENCE "Comment_id_seq" RESTART WITH 1;`;
     await prisma.$queryRaw`ALTER SEQUENCE "Post_id_seq" RESTART WITH 1;`;
-    await prisma.post.createMany({
-      data: [
-        {
-          authorId: 1,
-          title: 'Title for the first post',
-          content: 'Content for the first post.',
-        },
-      ],
+    await prisma.post.create({
+      data: {
+        authorId: 1,
+        title: 'Title for the first post',
+        content: 'Content for the first post.',
+      },
     });
   });
 
@@ -79,6 +77,43 @@ describe(`POST '/:postId/comments'`, () => {
       status: 'success',
       data: {
         comment: { id: expect.any(Number), postId: expect.any(Number) },
+      },
+    });
+  });
+});
+
+describe(`GET '/:postId/comments/:commentId'`, () => {
+  beforeEach(async () => {
+    await prisma.comment.deleteMany();
+    await prisma.post.deleteMany();
+    await prisma.$queryRaw`ALTER SEQUENCE "Comment_id_seq" RESTART WITH 1;`;
+    await prisma.$queryRaw`ALTER SEQUENCE "Post_id_seq" RESTART WITH 1;`;
+    await prisma.post.create({
+      data: {
+        authorId: 1,
+        title: 'Title for the first post',
+        content: 'Content for the first post.',
+        comments: {
+          create: {
+            name: 'foobar',
+            email: 'foo@bar.com',
+            content: 'Comment for the first post',
+          },
+        },
+      },
+    });
+  });
+
+  test('response with comment not found error', async () => {
+    const response = await request(app).get('/1/comments/1001');
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(404);
+    expect(response.body).toEqual({
+      status: 'error',
+      error: {
+        code: 404,
+        message: expect.any(String),
       },
     });
   });
