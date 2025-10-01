@@ -21,12 +21,15 @@ afterEach(async () => {
 });
 
 afterAll(async () => {
+  await prisma.comment.deleteMany();
   await prisma.post.deleteMany();
 });
 
 describe(`POST '/:postId/comments'`, () => {
   beforeEach(async () => {
+    await prisma.comment.deleteMany();
     await prisma.post.deleteMany();
+    await prisma.$queryRaw`ALTER SEQUENCE "Comment_id_seq" RESTART WITH 1;`;
     await prisma.$queryRaw`ALTER SEQUENCE "Post_id_seq" RESTART WITH 1;`;
     await prisma.post.createMany({
       data: [
@@ -38,6 +41,7 @@ describe(`POST '/:postId/comments'`, () => {
       ],
     });
   });
+
   test('response with form validation error', async () => {
     const response = await request(app).post('/1/comments');
 
@@ -53,6 +57,28 @@ describe(`POST '/:postId/comments'`, () => {
           { field: 'email', message: expect.any(String) },
           { field: 'content', message: expect.any(String) },
         ],
+      },
+    });
+  });
+
+  test('response with comment create result', async () => {
+    const payload = {
+      name: 'foobar',
+      email: 'foo@bar.com',
+      content: 'Create new comment content',
+    };
+
+    const response = await request(app)
+      .post('/1/comments')
+      .set('Content-Type', 'application/json')
+      .send(payload);
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(201);
+    expect(response.body).toEqual({
+      status: 'success',
+      data: {
+        comment: { id: expect.any(Number), postId: expect.any(Number) },
       },
     });
   });
