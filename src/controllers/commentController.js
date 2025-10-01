@@ -140,7 +140,7 @@ exports.deleteComment = async (req, res) => {
   res.status(200).json({
     status: 'success',
     data: {
-      comment: { id: deleted.id },
+      comment: { id: deleted.id, postId: deleted.postId },
     },
   });
 };
