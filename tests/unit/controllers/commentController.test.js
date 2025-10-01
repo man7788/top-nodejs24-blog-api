@@ -122,4 +122,39 @@ describe(`Get comment controller`, () => {
       },
     });
   });
+
+  test('response with a single comment', async () => {
+    const comment = {
+      id: 1,
+      name: 'foobar',
+      email: 'foo@bar.com',
+      content: 'Post comment',
+      postId: 1,
+    };
+
+    db.readComment = jest.fn();
+    db.readComment.mockReturnValue(comment);
+
+    const mockResponse = () => {
+      const res = {};
+      res.status = jest.fn().mockReturnValue(res);
+      res.json = jest.fn().mockReturnValue(res);
+      return res;
+    };
+
+    const req = { params: { postId: 1, commentId: 1 } };
+    const res = mockResponse();
+
+    await commentController.getComment(req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 'success',
+      data: {
+        comment,
+      },
+    });
+  });
 });
