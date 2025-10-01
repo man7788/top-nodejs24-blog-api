@@ -356,7 +356,8 @@ describe(`Patch a single post controller`, () => {
     const res = mockResponse();
 
     const futureDate = Date.now() + 1 * 60 * 60 * 1000; // Add 1 hour (in milliseconds)
-    const updatedAt = new Date(futureDate).getTime();
+    const updatedAt = new Date(futureDate);
+
     const updatedPost = {
       id: post.id,
       authorId: post.authorId,
