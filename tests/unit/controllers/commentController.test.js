@@ -191,4 +191,37 @@ describe(`Patch comment controller`, () => {
       },
     });
   });
+
+  test('response with comment not found error', async () => {
+    validationResult.mockImplementation(() => ({
+      isEmpty: () => true,
+    }));
+
+    db.readComment = jest.fn();
+    db.readComment.mockReturnValue(null);
+
+    const mockResponse = () => {
+      const res = {};
+      res.status = jest.fn().mockReturnValue(res);
+      res.json = jest.fn().mockReturnValue(res);
+      return res;
+    };
+
+    const req = { params: { commentId: 1, postId: 1 } };
+    const res = mockResponse();
+
+    // Second anonymous function of "patchComment" controller array
+    await commentController.patchComment[1](req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 'error',
+      error: {
+        code: 400,
+        message: 'Not found',
+      },
+    });
+  });
 });
