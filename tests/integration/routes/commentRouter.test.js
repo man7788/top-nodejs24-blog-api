@@ -191,4 +191,33 @@ describe(`PATCH '/:postId/comments/:commentId'`, () => {
       },
     });
   });
+
+  test('response with comment patch result', async () => {
+    const payload = {
+      content: 'Patch comment content',
+    };
+
+    const response = await request(app)
+      .patch('/1/comments/1')
+      .set('Content-Type', 'application/json')
+      .send(payload);
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(200);
+    expect(response.body).toEqual({
+      status: 'success',
+      data: {
+        comment: {
+          id: 1,
+          name: expect.any(String),
+          email: expect.any(String),
+          content: 'Patch comment content',
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+          published: true,
+          postId: 1,
+        },
+      },
+    });
+  });
 });
