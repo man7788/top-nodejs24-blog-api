@@ -129,7 +129,7 @@ exports.deleteComment = async (req, res) => {
     return res.status(404).json({
       status: 'error',
       error: {
-        code: 400,
+        code: 404,
         message: 'Not found',
       },
     });
