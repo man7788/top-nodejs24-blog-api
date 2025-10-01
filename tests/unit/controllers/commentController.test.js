@@ -224,4 +224,65 @@ describe(`Patch comment controller`, () => {
       },
     });
   });
+
+  test('response with patch comment result', async () => {
+    const createdAt = new Date();
+
+    const comment = {
+      id: 1,
+      name: 'foobar',
+      email: 'foo@bar.com',
+      content: 'Post comment',
+      createdAt,
+      updatedAt: createdAt,
+      published: true,
+      postId: 1,
+    };
+
+    db.readComment = jest.fn();
+    db.readComment.mockReturnValue(comment);
+
+    const mockResponse = () => {
+      const res = {};
+      res.status = jest.fn().mockReturnValue(res);
+      res.json = jest.fn().mockReturnValue(res);
+      return res;
+    };
+
+    const req = {
+      params: { commentId: 1, postId: 1 },
+      body: { content: 'Updated comment' },
+    };
+    const res = mockResponse();
+
+    const futureDate = Date.now() + 1 * 60 * 60 * 1000; // Add 1 hour (in milliseconds)
+    const updatedAt = new Date(futureDate);
+
+    const updatedComment = {
+      id: comment.id,
+      name: comment.name,
+      email: comment.email,
+      content: req.body.content,
+      createdAt,
+      updatedAt,
+      published: comment.published,
+      postId: comment.postId,
+    };
+
+    db.updateComment = jest.fn();
+    db.updateComment.mockReturnValue(updatedComment);
+
+    // Second anonymous function of "patchComment" controller array
+    await commentController.patchComment[1](req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 'success',
+      data: {
+        comment: updatedComment,
+      },
+    });
+  });
 });
