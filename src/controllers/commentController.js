@@ -112,7 +112,7 @@ exports.patchComment = [
     res.status(200).json({
       status: 'success',
       data: {
-        comment: { id: updated.id },
+        comment: updated,
       },
     });
   },
