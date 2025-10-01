@@ -228,3 +228,47 @@ describe(`PATCH '/:postId/comments/:commentId'`, () => {
     });
   });
 });
+
+describe(`DELETE '/:postId/comments/:commentId'`, () => {
+  beforeEach(async () => {
+    await prisma.comment.deleteMany();
+    await prisma.post.deleteMany();
+    await prisma.$queryRaw`ALTER SEQUENCE "Comment_id_seq" RESTART WITH 1;`;
+    await prisma.$queryRaw`ALTER SEQUENCE "Post_id_seq" RESTART WITH 1;`;
+    await prisma.post.create({
+      data: {
+        authorId: 1,
+        title: 'Title for the first post',
+        content: 'Content for the first post.',
+        comments: {
+          create: {
+            name: 'foobar',
+            email: 'foo@bar.com',
+            content: 'Comment for the first post',
+          },
+        },
+      },
+    });
+  });
+
+  test('response with comment not found error', async () => {
+    const payload = {
+      content: 'Patch comment content',
+    };
+
+    const response = await request(app)
+      .delete('/1/comments/1001')
+      .set('Content-Type', 'application/json')
+      .send(payload);
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(404);
+    expect(response.body).toEqual({
+      status: 'error',
+      error: {
+        code: 404,
+        message: expect.any(String),
+      },
+    });
+  });
+});
