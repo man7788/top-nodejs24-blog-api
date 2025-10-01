@@ -117,4 +117,26 @@ describe(`GET '/:postId/comments/:commentId'`, () => {
       },
     });
   });
+
+  test('response with a single comment', async () => {
+    const response = await request(app).get('/1/comments/1');
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(200);
+    expect(response.body).toEqual({
+      status: 'success',
+      data: {
+        comment: {
+          id: 1,
+          name: expect.any(String),
+          email: expect.any(String),
+          content: expect.any(String),
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+          published: true,
+          postId: 1,
+        },
+      },
+    });
+  });
 });
