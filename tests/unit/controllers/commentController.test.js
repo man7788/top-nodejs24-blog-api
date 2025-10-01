@@ -158,3 +158,37 @@ describe(`Get comment controller`, () => {
     });
   });
 });
+
+describe(`Patch comment controller`, () => {
+  test('response with form validation error', async () => {
+    validationResult.mockImplementation(() => ({
+      isEmpty: () => false,
+      array: () => [{ path: 'content', msg: 'Content must not be empty.' }],
+    }));
+
+    const mockResponse = () => {
+      const res = {};
+      res.status = jest.fn().mockReturnValue(res);
+      res.json = jest.fn().mockReturnValue(res);
+      return res;
+    };
+
+    const req = {};
+    const res = mockResponse();
+
+    // Second anonymous function of "patchComment" controller array
+    await commentController.patchComment[1](req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 'error',
+      error: {
+        code: 400,
+        message: 'Patch comment form validation failed.',
+        details: [{ field: 'content', message: 'Content must not be empty.' }],
+      },
+    });
+  });
+});
