@@ -179,7 +179,14 @@ describe(`PATCH '/:postId/comments/:commentId'`, () => {
   });
 
   test('response with comment not found error', async () => {
-    const response = await request(app).get('/1/comments/1001');
+    const payload = {
+      content: 'Patch comment content',
+    };
+
+    const response = await request(app)
+      .patch('/1/comments/1001')
+      .set('Content-Type', 'application/json')
+      .send(payload);
 
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(404);
