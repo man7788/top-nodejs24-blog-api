@@ -271,4 +271,24 @@ describe(`DELETE '/:postId/comments/:commentId'`, () => {
       },
     });
   });
+
+  test('response with comment patch result', async () => {
+    const payload = {
+      content: 'Patch comment content',
+    };
+
+    const response = await request(app)
+      .delete('/1/comments/1')
+      .set('Content-Type', 'application/json')
+      .send(payload);
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(200);
+    expect(response.body).toEqual({
+      status: 'success',
+      data: {
+        comment: { id: 1, postId: 1 },
+      },
+    });
+  });
 });
