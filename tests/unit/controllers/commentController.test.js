@@ -1,5 +1,6 @@
 const commentController = require('../../../src/controllers/commentController');
 const { validationResult } = require('express-validator');
+const db = require('../../../src/services/queries/commentQuery');
 
 // To mock a named export, use the factory function pattern in jest.mock()
 jest.mock('express-validator', () => ({
@@ -35,11 +36,11 @@ describe(`Post comment controller`, () => {
     const req = {};
     const res = mockResponse();
 
-    // Second anonymous function of "postBlogPost" controller array
+    // Second anonymous function of "postComment" controller array
     await commentController.postComment[1](req, res);
 
-    expect(res.status).toHaveBeenCalledWith(400);
     expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledTimes(1);
     expect(res.json).toHaveBeenCalledWith({
       status: 'error',
@@ -51,6 +52,43 @@ describe(`Post comment controller`, () => {
           { field: 'email', message: 'Email must not be empty.' },
           { field: 'content', message: 'Content must not be empty.' },
         ],
+      },
+    });
+  });
+
+  test('response comment create result', async () => {
+    validationResult.mockImplementation(() => ({
+      isEmpty: () => true,
+    }));
+
+    const comment = { id: 1, postId: 1 };
+
+    db.createComment = jest.fn();
+    db.createComment.mockReturnValue(comment);
+
+    const mockResponse = () => {
+      const res = {};
+      res.status = jest.fn().mockReturnValue(res);
+      res.json = jest.fn().mockReturnValue(res);
+      return res;
+    };
+
+    const req = {
+      params: { postId: 1 },
+      body: { name: 'foobar', email: 'foo@bar.com', content: 'Post content' },
+    };
+    const res = mockResponse();
+
+    // Second anonymous function of "postComment" controller array
+    await commentController.postComment[1](req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 'success',
+      data: {
+        comment: { id: comment.id, postId: comment.postId },
       },
     });
   });
