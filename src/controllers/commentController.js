@@ -33,10 +33,10 @@ exports.postComment = [
 
     const comment = await db.createComment(postId, name, email, content);
 
-    res.status(200).json({
+    res.status(201).json({
       status: 'success',
       data: {
-        comment: { id: comment.id, post_id: comment.post_id },
+        comment: { id: comment.id, postId: comment.postId },
       },
     });
   },
