@@ -27,8 +27,4 @@ const customJwtAuth = (req, res, next) => {
   })(req, res, next);
 };
 
-module.exports = { customJwtAuth };
-
-// function (type,opt,cb) {
-//
-// }
+module.exports = customJwtAuth;
