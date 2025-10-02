@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { customJwtAuth } = require('../middlewares/passport/customAuth');
+const customJwtAuth = require('../middlewares/passport/customAuth');
 const commentController = require('../controllers/commentController');
 
 const commentRouter = Router();
@@ -8,28 +8,28 @@ const commentRouter = Router();
 commentRouter.post(
   '/:postId/comments',
   customJwtAuth,
-  commentController.postComment
+  commentController.postComment,
 );
 
 // GET request to read comment
 commentRouter.get(
   '/:postId/comments/:commentId',
   customJwtAuth,
-  commentController.getComment
+  commentController.getComment,
 );
 
 // UPDATE request to update comment
 commentRouter.patch(
   '/:postId/comments/:commentId',
   customJwtAuth,
-  commentController.patchComment
+  commentController.patchComment,
 );
 
 // DELETE request to delete comment
 commentRouter.delete(
   '/:postId/comments/:commentId',
   customJwtAuth,
-  commentController.deleteComment
+  commentController.deleteComment,
 );
 
 module.exports = commentRouter;
