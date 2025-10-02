@@ -1,6 +1,4 @@
-const {
-  customJwtAuth,
-} = require('../../../../src/middlewares/passport/customAuth.js');
+const customJwtAuth = require('../../../../src/middlewares/passport/customAuth.js');
 const passport = require('passport');
 
 afterEach(async () => {
