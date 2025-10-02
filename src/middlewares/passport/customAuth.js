@@ -1,6 +1,8 @@
 const passport = require('passport');
 
 const customJwtAuth = (req, res, next) => {
+  // passport.authenticate will return the custom callback (err, user, info) => { ... },
+  // which will be called as an IIFE with (req, res, next) functioning as a middleware.
   passport.authenticate('jwt', { session: false }, (err, user, info) => {
     if (err) {
       // Handle unexpected errors during authentication (e.g., database issues)
@@ -26,3 +28,7 @@ const customJwtAuth = (req, res, next) => {
 };
 
 module.exports = { customJwtAuth };
+
+// function (type,opt,cb) {
+//
+// }
