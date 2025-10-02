@@ -1,6 +1,4 @@
-const {
-  errorHandler,
-} = require('../../../../src/middlewares/errors/errorHandler');
+const errorHandler = require('../../../../src/middlewares/errors/errorHandler');
 
 jest.spyOn(console, 'error').mockImplementation(() => {});
 
