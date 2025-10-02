@@ -17,7 +17,7 @@ exports.postBlogPost = [
         error: {
           code: 400,
           message: 'Post create form validation failed.',
-          details: resMessage,
+          details,
         },
       });
     }
@@ -102,7 +102,7 @@ exports.patchPost = [
         error: {
           code: 400,
           message: 'Post patch form validation failed.',
-          details: resMessage,
+          details,
         },
       });
     }
