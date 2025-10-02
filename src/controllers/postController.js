@@ -1,5 +1,6 @@
 const validator = require('../middlewares/validators/postValidator');
 const { validationResult } = require('express-validator');
+const ErrorFormatter = require('../utils/formatters/errorFormatter');
 const db = require('../services/queries/postQuery');
 
 // Handle post create on POST
@@ -9,12 +10,7 @@ exports.postBlogPost = [
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      const errorArray = errors.array();
-      const resMessage = [];
-
-      errorArray.forEach((error) => {
-        resMessage.push({ field: error.path, message: error.msg });
-      });
+      const details = new ErrorFormatter(errors).array();
 
       return res.status(400).json({
         status: 'error',
@@ -99,12 +95,7 @@ exports.patchPost = [
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      const errorArray = errors.array();
-      const resMessage = [];
-
-      errorArray.forEach((error) => {
-        resMessage.push({ field: error.path, message: error.msg });
-      });
+      const details = new ErrorFormatter(errors).array();
 
       return res.status(400).json({
         status: 'error',
