@@ -1,5 +1,6 @@
 const validator = require('../middlewares/validators/commentValidator');
 const { validationResult } = require('express-validator');
+const ErrorFormatter = require('../utils/formatters/errorFormatter');
 const db = require('../services/queries/commentQuery');
 
 // Handle comment create on POST
@@ -9,19 +10,14 @@ exports.postComment = [
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      const errorArray = errors.array();
-      const resMessage = [];
-
-      errorArray.forEach((error) => {
-        resMessage.push({ field: error.path, message: error.msg });
-      });
+      const details = new ErrorFormatter(errors).array();
 
       return res.status(400).json({
         status: 'error',
         error: {
           code: 400,
           message: 'Comment form validation failed.',
-          details: resMessage,
+          details,
         },
       });
     }
@@ -74,19 +70,14 @@ exports.patchComment = [
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      const errorArray = errors.array();
-      const resMessage = [];
-
-      errorArray.forEach((error) => {
-        resMessage.push({ field: error.path, message: error.msg });
-      });
+      const details = new ErrorFormatter(errors).array();
 
       return res.status(400).json({
         status: 'error',
         error: {
           code: 400,
           message: 'Patch comment form validation failed.',
-          details: resMessage,
+          details,
         },
       });
     }
