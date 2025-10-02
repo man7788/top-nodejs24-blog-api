@@ -219,7 +219,7 @@ describe(`Patch comment controller`, () => {
     expect(res.json).toHaveBeenCalledWith({
       status: 'error',
       error: {
-        code: 400,
+        code: 404,
         message: 'Not found',
       },
     });
