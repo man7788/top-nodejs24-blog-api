@@ -1,6 +1,7 @@
 require('dotenv').config();
 const validator = require('../middlewares/validators/authValidator');
 const { validationResult } = require('express-validator');
+const ErrorFormatter = require('../utils/formatters/errorFormatter');
 const db = require('../services/queries/userQuery');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -12,19 +13,14 @@ exports.postLogin = [
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      const errorArray = errors.array();
-      const resMessage = [];
-
-      errorArray.forEach((error) => {
-        resMessage.push({ field: error.path, message: error.msg });
-      });
+      const details = new ErrorFormatter(errors).array();
 
       return res.status(400).json({
         status: 'error',
         error: {
           code: 400,
           message: 'Login form validation failed.',
-          details: resMessage,
+          details,
         },
       });
     }
