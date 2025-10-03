@@ -52,4 +52,25 @@ describe(`GET '/'`, () => {
       },
     });
   });
+
+  test('return error status 401 and error details info message', async () => {
+    passport.authenticate.mockImplementation(
+      (authType, options, callback) => () => {
+        callback(null, false, { message: 'Error message' });
+      },
+    );
+
+    const response = await request(app).get('/');
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(401);
+    expect(response.body).toEqual({
+      status: 'error',
+      error: {
+        code: 401,
+        message: expect.any(String),
+        details: 'Error message',
+      },
+    });
+  });
 });
