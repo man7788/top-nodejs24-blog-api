@@ -11,6 +11,22 @@ jest.mock('../../../src/middlewares/validators/commentValidator', () => ({
   validatePost: jest.fn(),
 }));
 
+jest.mock('../../../src/services/queries/commentQuery', () => ({
+  createComment: jest.fn(),
+  readComment: jest.fn(),
+  updateComment: jest.fn(),
+  deleteComment: jest.fn(),
+}));
+
+beforeEach(async () => {
+  res = {
+    // Allow chaining of .status().json()
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn(),
+    send: jest.fn(),
+  };
+});
+
 afterEach(async () => {
   jest.clearAllMocks();
 });
@@ -26,15 +42,7 @@ describe(`Post comment controller`, () => {
       ],
     }));
 
-    const mockResponse = () => {
-      const res = {};
-      res.status = jest.fn().mockReturnValue(res);
-      res.json = jest.fn().mockReturnValue(res);
-      return res;
-    };
-
     const req = {};
-    const res = mockResponse();
 
     // Second anonymous function of "postComment" controller array
     await commentController.postComment[1](req, res);
@@ -63,21 +71,12 @@ describe(`Post comment controller`, () => {
 
     const comment = { id: 1, postId: 1 };
 
-    db.createComment = jest.fn();
     db.createComment.mockReturnValue(comment);
-
-    const mockResponse = () => {
-      const res = {};
-      res.status = jest.fn().mockReturnValue(res);
-      res.json = jest.fn().mockReturnValue(res);
-      return res;
-    };
 
     const req = {
       params: { postId: 1 },
       body: { name: 'foobar', email: 'foo@bar.com', content: 'Post content' },
     };
-    const res = mockResponse();
 
     // Second anonymous function of "postComment" controller array
     await commentController.postComment[1](req, res);
@@ -96,18 +95,9 @@ describe(`Post comment controller`, () => {
 
 describe(`Get comment controller`, () => {
   test('response with error if comment not found', async () => {
-    db.readComment = jest.fn();
     db.readComment.mockReturnValue(null);
 
-    const mockResponse = () => {
-      const res = {};
-      res.status = jest.fn().mockReturnValue(res);
-      res.json = jest.fn().mockReturnValue(res);
-      return res;
-    };
-
     const req = { params: { postId: 1, commentId: 1 } };
-    const res = mockResponse();
 
     await commentController.getComment(req, res);
 
@@ -132,18 +122,9 @@ describe(`Get comment controller`, () => {
       postId: 1,
     };
 
-    db.readComment = jest.fn();
     db.readComment.mockReturnValue(comment);
 
-    const mockResponse = () => {
-      const res = {};
-      res.status = jest.fn().mockReturnValue(res);
-      res.json = jest.fn().mockReturnValue(res);
-      return res;
-    };
-
     const req = { params: { postId: 1, commentId: 1 } };
-    const res = mockResponse();
 
     await commentController.getComment(req, res);
 
@@ -166,15 +147,7 @@ describe(`Patch comment controller`, () => {
       array: () => [{ path: 'content', msg: 'Content must not be empty.' }],
     }));
 
-    const mockResponse = () => {
-      const res = {};
-      res.status = jest.fn().mockReturnValue(res);
-      res.json = jest.fn().mockReturnValue(res);
-      return res;
-    };
-
     const req = {};
-    const res = mockResponse();
 
     // Second anonymous function of "patchComment" controller array
     await commentController.patchComment[1](req, res);
@@ -197,18 +170,9 @@ describe(`Patch comment controller`, () => {
       isEmpty: () => true,
     }));
 
-    db.readComment = jest.fn();
     db.readComment.mockReturnValue(null);
 
-    const mockResponse = () => {
-      const res = {};
-      res.status = jest.fn().mockReturnValue(res);
-      res.json = jest.fn().mockReturnValue(res);
-      return res;
-    };
-
     const req = { params: { commentId: 1, postId: 1 } };
-    const res = mockResponse();
 
     // Second anonymous function of "patchComment" controller array
     await commentController.patchComment[1](req, res);
@@ -227,6 +191,8 @@ describe(`Patch comment controller`, () => {
 
   test('response with patch comment result', async () => {
     const createdAt = new Date();
+    const futureDate = Date.now() + 1 * 60 * 60 * 1000; // Add 1 hour (in milliseconds)
+    const updatedAt = new Date(futureDate);
 
     const comment = {
       id: 1,
@@ -239,24 +205,12 @@ describe(`Patch comment controller`, () => {
       postId: 1,
     };
 
-    db.readComment = jest.fn();
     db.readComment.mockReturnValue(comment);
-
-    const mockResponse = () => {
-      const res = {};
-      res.status = jest.fn().mockReturnValue(res);
-      res.json = jest.fn().mockReturnValue(res);
-      return res;
-    };
 
     const req = {
       params: { commentId: 1, postId: 1 },
       body: { content: 'Updated comment' },
     };
-    const res = mockResponse();
-
-    const futureDate = Date.now() + 1 * 60 * 60 * 1000; // Add 1 hour (in milliseconds)
-    const updatedAt = new Date(futureDate);
 
     const updatedComment = {
       id: comment.id,
@@ -269,7 +223,6 @@ describe(`Patch comment controller`, () => {
       postId: comment.postId,
     };
 
-    db.updateComment = jest.fn();
     db.updateComment.mockReturnValue(updatedComment);
 
     // Second anonymous function of "patchComment" controller array
@@ -289,18 +242,9 @@ describe(`Patch comment controller`, () => {
 
 describe(`Delete comment controller`, () => {
   test('response with comment not found error', async () => {
-    db.readComment = jest.fn();
     db.readComment.mockReturnValue(null);
 
-    const mockResponse = () => {
-      const res = {};
-      res.status = jest.fn().mockReturnValue(res);
-      res.json = jest.fn().mockReturnValue(res);
-      return res;
-    };
-
     const req = { params: { commentId: 1, postId: 1 } };
-    const res = mockResponse();
 
     await commentController.deleteComment(req, res);
 
@@ -325,21 +269,10 @@ describe(`Delete comment controller`, () => {
       postId: 1,
     };
 
-    db.readComment = jest.fn();
     db.readComment.mockReturnValue(comment);
-
-    const mockResponse = () => {
-      const res = {};
-      res.status = jest.fn().mockReturnValue(res);
-      res.json = jest.fn().mockReturnValue(res);
-      return res;
-    };
+    db.deleteComment.mockReturnValue(comment);
 
     const req = { params: { postId: 1, commentId: 1 } };
-    const res = mockResponse();
-
-    db.deleteComment = jest.fn();
-    db.deleteComment.mockReturnValue(comment);
 
     await commentController.deleteComment(req, res);
 
