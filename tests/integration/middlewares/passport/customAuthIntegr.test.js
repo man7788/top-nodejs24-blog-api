@@ -94,4 +94,18 @@ describe(`GET '/'`, () => {
       },
     });
   });
+
+  test('response with status 200 and success status', async () => {
+    passport.authenticate.mockImplementation(
+      (authType, options, callback) => () => {
+        callback(null, { id: 1 });
+      },
+    );
+
+    const response = await request(app).get('/');
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(200);
+    expect(response.body).toEqual({ status: 'success' });
+  });
 });
