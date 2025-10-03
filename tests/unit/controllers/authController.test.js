@@ -23,6 +23,19 @@ jest.mock('jsonwebtoken', () => ({
   sign: jest.fn(),
 }));
 
+jest.mock('../../../src/services/queries/userQuery', () => ({
+  readUserByEmail: jest.fn(),
+}));
+
+beforeEach(async () => {
+  res = {
+    // Allow chaining of .status().json()
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn(),
+    send: jest.fn(),
+  };
+});
+
 afterEach(async () => {
   jest.clearAllMocks();
 });
@@ -37,15 +50,7 @@ describe(`Post login controller`, () => {
       ],
     }));
 
-    const mockResponse = () => {
-      const res = {};
-      res.status = jest.fn().mockReturnValue(res);
-      res.json = jest.fn().mockReturnValue(res);
-      return res;
-    };
-
     const req = {};
-    const res = mockResponse();
 
     // Second anonymous function of "postBlogPost" controller array
     await authController.postLogin[1](req, res);
@@ -71,18 +76,9 @@ describe(`Post login controller`, () => {
       isEmpty: () => true,
     }));
 
-    db.readUserByEmail = jest.fn();
     db.readUserByEmail.mockReturnValue(null);
 
-    const mockResponse = () => {
-      const res = {};
-      res.status = jest.fn().mockReturnValue(res);
-      res.json = jest.fn().mockReturnValue(res);
-      return res;
-    };
-
     const req = { body: { email: 'foo@bar.com', password: 'foobar' } };
-    const res = mockResponse();
 
     // Second anonymous function of "postBlogPost" controller array
     await authController.postLogin[1](req, res);
@@ -107,18 +103,9 @@ describe(`Post login controller`, () => {
 
     bcrypt.compare.mockResolvedValue(false);
 
-    db.readUserByEmail = jest.fn();
     db.readUserByEmail.mockReturnValue({ id: 1 });
 
-    const mockResponse = () => {
-      const res = {};
-      res.status = jest.fn().mockReturnValue(res);
-      res.json = jest.fn().mockReturnValue(res);
-      return res;
-    };
-
     const req = { body: { email: 'foo@bar.com', password: 'foobar' } };
-    const res = mockResponse();
 
     // Second anonymous function of "postBlogPost" controller array
     await authController.postLogin[1](req, res);
@@ -154,21 +141,12 @@ describe(`Post login controller`, () => {
     const mockedToken = 'mockedToken';
     jwt.sign.mockReturnValue(mockedToken);
 
-    db.readUserByEmail = jest.fn();
     db.readUserByEmail.mockReturnValue({
       id: 1,
       username: 'foobar',
     });
 
-    const mockResponse = () => {
-      const res = {};
-      res.status = jest.fn().mockReturnValue(res);
-      res.json = jest.fn().mockReturnValue(res);
-      return res;
-    };
-
     const req = { body: { email: 'foo@bar.com', password: 'foobar' } };
-    const res = mockResponse();
 
     // Second anonymous function of "postBlogPost" controller array
     await authController.postLogin[1](req, res);
