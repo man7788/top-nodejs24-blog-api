@@ -11,6 +11,23 @@ jest.mock('../../../src/middlewares/validators/postValidator', () => ({
   validatePost: jest.fn(),
 }));
 
+jest.mock('../../../src/services/queries/postQuery', () => ({
+  createPost: jest.fn(),
+  readAllPosts: jest.fn(),
+  readPost: jest.fn(),
+  deletePost: jest.fn(),
+  updatePost: jest.fn(),
+}));
+
+beforeEach(async () => {
+  res = {
+    // Allow chaining of .status().json()
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn(),
+    send: jest.fn(),
+  };
+});
+
 afterEach(async () => {
   jest.clearAllMocks();
 });
@@ -25,15 +42,7 @@ describe(`Post blog post controller`, () => {
       ],
     }));
 
-    const mockResponse = () => {
-      const res = {};
-      res.status = jest.fn().mockReturnValue(res);
-      res.json = jest.fn().mockReturnValue(res);
-      return res;
-    };
-
     const req = { user: { id: 1 } };
-    const res = mockResponse();
 
     // Second anonymous function of "postBlogPost" controller array
     await postController.postBlogPost[1](req, res);
@@ -61,21 +70,12 @@ describe(`Post blog post controller`, () => {
 
     const post = { id: 1 };
 
-    db.createPost = jest.fn();
     db.createPost.mockReturnValue(post);
-
-    const mockResponse = () => {
-      const res = {};
-      res.status = jest.fn().mockReturnValue(res);
-      res.json = jest.fn().mockReturnValue(res);
-      return res;
-    };
 
     const req = {
       user: { id: 1 },
       body: { title: 'Post title', content: 'Post content', published: true },
     };
-    const res = mockResponse();
 
     // Second anonymous function of "postBlogPost" controller array
     await postController.postBlogPost[1](req, res);
@@ -117,18 +117,9 @@ describe(`Get all posts controller`, () => {
       },
     ];
 
-    db.readAllPosts = jest.fn();
     db.readAllPosts.mockReturnValue(posts);
 
-    const mockResponse = () => {
-      const res = {};
-      res.status = jest.fn().mockReturnValue(res);
-      res.json = jest.fn().mockReturnValue(res);
-      return res;
-    };
-
     const req = {};
-    const res = mockResponse();
 
     await postController.getAllPosts(req, res);
 
@@ -146,18 +137,9 @@ describe(`Get all posts controller`, () => {
   test('response with empty array if no post found', async () => {
     const posts = [];
 
-    db.readAllPosts = jest.fn();
     db.readAllPosts.mockReturnValue(posts);
 
-    const mockResponse = () => {
-      const res = {};
-      res.status = jest.fn().mockReturnValue(res);
-      res.json = jest.fn().mockReturnValue(res);
-      return res;
-    };
-
     const req = {};
-    const res = mockResponse();
 
     await postController.getAllPosts(req, res);
 
@@ -175,18 +157,9 @@ describe(`Get all posts controller`, () => {
 
 describe(`Get single post controller`, () => {
   test('response with error if post not found', async () => {
-    db.readPost = jest.fn();
     db.readPost.mockReturnValue(null);
 
-    const mockResponse = () => {
-      const res = {};
-      res.status = jest.fn().mockReturnValue(res);
-      res.json = jest.fn().mockReturnValue(res);
-      return res;
-    };
-
     const req = { params: { postId: 1 } };
-    const res = mockResponse();
 
     await postController.getPost(req, res);
 
@@ -214,18 +187,9 @@ describe(`Get single post controller`, () => {
       comments: [],
     };
 
-    db.readPost = jest.fn();
     db.readPost.mockReturnValue(post);
 
-    const mockResponse = () => {
-      const res = {};
-      res.status = jest.fn().mockReturnValue(res);
-      res.json = jest.fn().mockReturnValue(res);
-      return res;
-    };
-
     const req = { params: { postId: 1 } };
-    const res = mockResponse();
 
     await postController.getPost(req, res);
 
@@ -247,18 +211,9 @@ describe(`Patch a single post controller`, () => {
       isEmpty: () => true,
     }));
 
-    db.readPost = jest.fn();
     db.readPost.mockReturnValue(null);
 
-    const mockResponse = () => {
-      const res = {};
-      res.status = jest.fn().mockReturnValue(res);
-      res.json = jest.fn().mockReturnValue(res);
-      return res;
-    };
-
     const req = { params: { postId: 1 } };
-    const res = mockResponse();
 
     // Second anonymous function of "patchPost" controller array
     await postController.patchPost[1](req, res);
@@ -285,18 +240,9 @@ describe(`Patch a single post controller`, () => {
       ],
     }));
 
-    db.readPost = jest.fn();
     db.readPost.mockReturnValue({});
 
-    const mockResponse = () => {
-      const res = {};
-      res.status = jest.fn().mockReturnValue(res);
-      res.json = jest.fn().mockReturnValue(res);
-      return res;
-    };
-
     const req = { params: { postId: 1 } };
-    const res = mockResponse();
 
     // Second anonymous function of "patchPost" controller array
     await postController.patchPost[1](req, res);
@@ -335,15 +281,7 @@ describe(`Patch a single post controller`, () => {
       comments: [],
     };
 
-    db.readPost = jest.fn();
     db.readPost.mockReturnValue(post);
-
-    const mockResponse = () => {
-      const res = {};
-      res.status = jest.fn().mockReturnValue(res);
-      res.json = jest.fn().mockReturnValue(res);
-      return res;
-    };
 
     const req = {
       params: { postId: 1 },
@@ -353,7 +291,6 @@ describe(`Patch a single post controller`, () => {
         published: true,
       },
     };
-    const res = mockResponse();
 
     const futureDate = Date.now() + 1 * 60 * 60 * 1000; // Add 1 hour (in milliseconds)
     const updatedAt = new Date(futureDate);
@@ -368,7 +305,6 @@ describe(`Patch a single post controller`, () => {
       published: true,
     };
 
-    db.updatePost = jest.fn();
     db.updatePost.mockReturnValue(updatedPost);
 
     // Second anonymous function of "patchPost" controller array
@@ -392,18 +328,9 @@ describe(`Delete a single post controller`, () => {
       isEmpty: () => true,
     }));
 
-    db.readPost = jest.fn();
     db.readPost.mockReturnValue(null);
 
-    const mockResponse = () => {
-      const res = {};
-      res.status = jest.fn().mockReturnValue(res);
-      res.json = jest.fn().mockReturnValue(res);
-      return res;
-    };
-
     const req = { params: { postId: 1 } };
-    const res = mockResponse();
 
     // Second anonymous function of "deletePost" controller array
     await postController.deletePost(req, res);
@@ -437,21 +364,10 @@ describe(`Delete a single post controller`, () => {
       comments: [],
     };
 
-    db.readPost = jest.fn();
     db.readPost.mockReturnValue(post);
-
-    const mockResponse = () => {
-      const res = {};
-      res.status = jest.fn().mockReturnValue(res);
-      res.json = jest.fn().mockReturnValue(res);
-      return res;
-    };
+    db.deletePost.mockReturnValue(post);
 
     const req = { params: { postId: 1 } };
-    const res = mockResponse();
-
-    db.deletePost = jest.fn();
-    db.deletePost.mockReturnValue(post);
 
     // Second anonymous function of "deletePost" controller array
     await postController.deletePost(req, res);
