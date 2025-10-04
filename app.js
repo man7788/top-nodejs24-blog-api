@@ -1,5 +1,5 @@
 const express = require('express');
-const { errorHandler } = require('./src/middlewares/errors/errorHandler');
+const errorHandler = require('./src/middlewares/errors/errorHandler');
 
 // Import all routes from routes/index barrel file
 const routes = require('./src/routes');
