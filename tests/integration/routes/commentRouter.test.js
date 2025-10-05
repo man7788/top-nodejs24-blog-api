@@ -252,14 +252,9 @@ describe(`DELETE '/:postId/comments/:commentId'`, () => {
   });
 
   test('response with comment not found error', async () => {
-    const payload = {
-      content: 'Patch comment content',
-    };
-
     const response = await request(app)
       .delete('/1/comments/1001')
-      .set('Content-Type', 'application/json')
-      .send(payload);
+      .set('Content-Type', 'application/json');
 
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(404);
@@ -272,15 +267,10 @@ describe(`DELETE '/:postId/comments/:commentId'`, () => {
     });
   });
 
-  test('response with comment patch result', async () => {
-    const payload = {
-      content: 'Patch comment content',
-    };
-
+  test('response with comment delete result', async () => {
     const response = await request(app)
       .delete('/1/comments/1')
-      .set('Content-Type', 'application/json')
-      .send(payload);
+      .set('Content-Type', 'application/json');
 
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(200);
