@@ -1,3 +1,5 @@
+/.vscode
+
 # Privacy Enhanced Mail
 *.pem
 
@@ -140,3 +142,7 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+/generated/prisma
+
+/generated/prisma
