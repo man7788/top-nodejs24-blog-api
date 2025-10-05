@@ -1,6 +1,17 @@
 const customJwtAuth = require('../../../../src/middlewares/passport/customAuth.js');
 const passport = require('passport');
 
+beforeEach(async () => {
+  res = {
+    // Allow chaining of .status().json()
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn(),
+    send: jest.fn(),
+  };
+  req = {};
+  next = jest.fn();
+});
+
 afterEach(async () => {
   jest.clearAllMocks();
 });
@@ -16,10 +27,6 @@ describe('customJwtAuth', () => {
         message: 'Internal sever error',
       },
     };
-
-    const req = {};
-    const res = {};
-    const next = jest.fn();
 
     passport.authenticate.mockImplementation(
       (authType, options, callback) => () => {
@@ -48,17 +55,6 @@ describe('customJwtAuth', () => {
       },
     );
 
-    const mockResponse = () => {
-      const res = {};
-      res.status = jest.fn().mockReturnValue(res);
-      res.json = jest.fn().mockReturnValue(res);
-      return res;
-    };
-
-    const req = {};
-    const res = mockResponse();
-    const next = jest.fn();
-
     customJwtAuth(req, res, next);
 
     expect(res.status).toHaveBeenCalledTimes(1);
@@ -83,17 +79,6 @@ describe('customJwtAuth', () => {
       },
     );
 
-    const mockResponse = () => {
-      const res = {};
-      res.status = jest.fn().mockReturnValue(res);
-      res.json = jest.fn().mockReturnValue(res);
-      return res;
-    };
-
-    const req = {};
-    const res = mockResponse();
-    const next = jest.fn();
-
     customJwtAuth(req, res, next);
 
     expect(res.status).toHaveBeenCalledTimes(1);
@@ -117,10 +102,6 @@ describe('customJwtAuth', () => {
         callback(null, { id: 1 });
       },
     );
-
-    const req = {};
-    const res = {};
-    const next = jest.fn();
 
     customJwtAuth(req, res, next);
 
