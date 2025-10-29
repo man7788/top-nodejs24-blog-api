@@ -8,10 +8,10 @@ const postRouter = Router();
 postRouter.post('/', customJwtAuth, postController.postBlogPost);
 
 // GET request to get all posts
-postRouter.get('/', customJwtAuth, postController.getAllPosts);
+postRouter.get('/', postController.getAllPosts);
 
 // GET request to get a single post
-postRouter.get('/:postId', customJwtAuth, postController.getPost);
+postRouter.get('/:postId', postController.getPost);
 
 // Patch request to update a single post
 postRouter.patch('/:postId', customJwtAuth, postController.patchPost);
