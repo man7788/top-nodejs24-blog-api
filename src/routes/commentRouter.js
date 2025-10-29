@@ -5,11 +5,7 @@ const commentController = require('../controllers/commentController');
 const commentRouter = Router();
 
 // POST request to create comment
-commentRouter.post(
-  '/:postId/comments',
-  customJwtAuth,
-  commentController.postComment,
-);
+commentRouter.post('/:postId/comments', commentController.postComment);
 
 // GET request to read comment
 commentRouter.get(
