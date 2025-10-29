@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const errorHandler = require('./src/middlewares/errors/errorHandler');
 
 // Import all routes from routes/index barrel file
@@ -6,6 +7,7 @@ const routes = require('./src/routes');
 
 const app = express();
 
+app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
