@@ -14,6 +14,26 @@ exports.createComment = async (postId, name, email, content) => {
   return comment;
 };
 
+// Read all comments
+exports.readAllComments = async (postId) => {
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+  });
+
+  if (post === null) {
+    return null;
+  }
+
+  const comments = await prisma.comment.findMany({
+    where: { postId },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
+  return comments;
+};
+
 // Read a single comment
 exports.readComment = async (postId, commentId) => {
   const post = await prisma.comment.findUnique({
