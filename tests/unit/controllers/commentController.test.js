@@ -13,6 +13,7 @@ jest.mock('../../../src/middlewares/validators/commentValidator', () => ({
 
 jest.mock('../../../src/services/queries/commentQuery', () => ({
   createComment: jest.fn(),
+  readAllComments: jest.fn(),
   readComment: jest.fn(),
   updateComment: jest.fn(),
   deleteComment: jest.fn(),
@@ -88,6 +89,62 @@ describe(`Post comment controller`, () => {
       status: 'success',
       data: {
         comment: { id: comment.id, postId: comment.postId },
+      },
+    });
+  });
+});
+
+describe(`Get all comments controller`, () => {
+  test('response with error if post not found', async () => {
+    db.readAllComments.mockReturnValue(null);
+
+    const req = { params: { postId: 1001 } };
+
+    await commentController.getAllComments(req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 'error',
+      error: {
+        code: 404,
+        message: 'Not found',
+      },
+    });
+  });
+
+  test('response with all comments', async () => {
+    const comments = [
+      {
+        id: 1,
+        name: 'foobar',
+        email: 'foo@bar.com',
+        content: 'Post comment 1',
+        postId: 1,
+      },
+      {
+        id: 2,
+        name: 'foobar',
+        email: 'foo@bar.com',
+        content: 'Post comment 2',
+        postId: 1,
+      },
+    ];
+
+    db.readAllComments.mockReturnValue(comments);
+
+    const req = { params: { postId: 1 } };
+
+    await commentController.getAllComments(req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 'success',
+      data: {
+        comments,
       },
     });
   });
