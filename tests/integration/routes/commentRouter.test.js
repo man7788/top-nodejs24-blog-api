@@ -82,6 +82,62 @@ describe(`POST '/:postId/comments'`, () => {
   });
 });
 
+describe(`GET '/:postId/comments'`, () => {
+  beforeEach(async () => {
+    await prisma.comment.deleteMany();
+    await prisma.post.deleteMany();
+    await prisma.$queryRaw`ALTER SEQUENCE "Comment_id_seq" RESTART WITH 1;`;
+    await prisma.$queryRaw`ALTER SEQUENCE "Post_id_seq" RESTART WITH 1;`;
+    await prisma.post.create({
+      data: {
+        authorId: 1,
+        title: 'Title for the first post',
+        content: 'Content for the first post.',
+        comments: {
+          create: [
+            {
+              name: 'foobar',
+              email: 'foo@bar.com',
+              content: 'Comment 1 for the first post',
+            },
+            {
+              name: 'foobar',
+              email: 'foo@bar.com',
+              content: 'Comment 2 for the first post',
+            },
+          ],
+        },
+      },
+    });
+  });
+
+  test('response with post not found error', async () => {
+    const response = await request(app).get('/1001/comments');
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(404);
+    expect(response.body).toEqual({
+      status: 'error',
+      error: {
+        code: 404,
+        message: expect.any(String),
+      },
+    });
+  });
+
+  test('response with all comments', async () => {
+    const response = await request(app).get('/1/comments');
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(200);
+    expect(response.body.data.comments).toHaveLength(2);
+    expect(response.body).toEqual({
+      status: 'success',
+      data: { comments: expect.any(Array) },
+    });
+  });
+});
+
 describe(`GET '/:postId/comments/:commentId'`, () => {
   beforeEach(async () => {
     await prisma.comment.deleteMany();
