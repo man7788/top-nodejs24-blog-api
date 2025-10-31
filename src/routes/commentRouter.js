@@ -7,7 +7,10 @@ const commentRouter = Router();
 // POST request to create comment
 commentRouter.post('/:postId/comments', commentController.postComment);
 
-// GET request to read comment
+// GET request to read all comment
+commentRouter.get('/:postId/comments', commentController.getAllComments);
+
+// GET request to read a single comment
 commentRouter.get(
   '/:postId/comments/:commentId',
   customJwtAuth,
