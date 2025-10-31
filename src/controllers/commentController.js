@@ -38,7 +38,31 @@ exports.postComment = [
   },
 ];
 
-// Handle comment read on GET
+// Handle all comments read on GET
+exports.getAllComments = async (req, res) => {
+  const postId = req.params.postId;
+
+  const comments = await db.readAllComments(Number(postId));
+
+  if (comments === null) {
+    return res.status(404).json({
+      status: 'error',
+      error: {
+        code: 404,
+        message: 'Not found',
+      },
+    });
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      comments,
+    },
+  });
+};
+
+// Handle a single comment read on GET
 exports.getComment = async (req, res) => {
   const postId = req.params.postId;
   const commentId = req.params.commentId;
