@@ -65,6 +65,33 @@ describe(`Post comment controller`, () => {
     });
   });
 
+  test('response with error if post not found', async () => {
+    validationResult.mockImplementation(() => ({
+      isEmpty: () => true,
+    }));
+
+    db.createComment.mockReturnValue(null);
+
+    const req = {
+      params: { postId: 1 },
+      body: { name: 'foobar', email: 'foo@bar.com', content: 'Post content' },
+    };
+
+    // Second anonymous function of "postComment" controller array
+    await commentController.postComment[1](req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 'error',
+      error: {
+        code: 404,
+        message: 'Not found',
+      },
+    });
+  });
+
   test('response comment create result', async () => {
     validationResult.mockImplementation(() => ({
       isEmpty: () => true,
