@@ -59,6 +59,29 @@ describe(`POST '/:postId/comments'`, () => {
     });
   });
 
+  test('response with error if post not found', async () => {
+    const payload = {
+      name: 'foobar',
+      email: 'foo@bar.com',
+      content: 'Create new comment content',
+    };
+
+    const response = await request(app)
+      .post('/1001/comments')
+      .set('Content-Type', 'application/json')
+      .send(payload);
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(404);
+    expect(response.body).toEqual({
+      status: 'error',
+      error: {
+        code: 404,
+        message: expect.any(String),
+      },
+    });
+  });
+
   test('response with comment create result', async () => {
     const payload = {
       name: 'foobar',
