@@ -2,6 +2,14 @@ const prisma = require('../../config/prisma/client');
 
 // Create a single comment
 exports.createComment = async (postId, name, email, content) => {
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+  });
+
+  if (post === null) {
+    return null;
+  }
+
   const comment = await prisma.comment.create({
     data: {
       name,
