@@ -29,6 +29,16 @@ exports.postComment = [
 
     const comment = await db.createComment(postId, name, email, content);
 
+    if (comment === null) {
+      return res.status(404).json({
+        status: 'error',
+        error: {
+          code: 404,
+          message: 'Not found',
+        },
+      });
+    }
+
     res.status(201).json({
       status: 'success',
       data: {
