@@ -69,3 +69,7 @@ exports.postLogin = [
     res.status(200).json({ status: 'success', data: { token } });
   },
 ];
+
+exports.getAuth = (req, res) => {
+  res.status(200).json({ status: 'success', data: { user: req.user } });
+};
