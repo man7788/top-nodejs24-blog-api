@@ -81,11 +81,13 @@ describe(`GET '/'`, () => {
           authorId: 1,
           title: 'Title for the first post',
           content: 'Content for the first post.',
+          published: true,
         },
         {
           authorId: 1,
           title: 'Title for the second post',
           content: 'Content for the second post.',
+          published: false,
         },
       ],
     });
@@ -93,6 +95,67 @@ describe(`GET '/'`, () => {
 
   test('response with all posts', async () => {
     const response = await request(app).get('/');
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(200);
+    expect(response.body.data.posts).toHaveLength(1);
+    expect(response.body).toEqual({
+      status: 'success',
+      data: { posts: expect.any(Array) },
+    });
+
+    const posts = response.body.data.posts;
+
+    posts.forEach((post) => {
+      expect(post).toEqual({
+        id: expect.any(Number),
+        authorId: expect.any(Number),
+        title: expect.any(String),
+        content: expect.any(String),
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+      });
+    });
+  });
+
+  test('response with empty array if no post is found', async () => {
+    await prisma.post.deleteMany();
+
+    const response = await request(app).get('/');
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(200);
+    expect(response.body.data.posts).toHaveLength(0);
+    expect(response.body).toEqual({
+      status: 'success',
+      data: { posts: [] },
+    });
+  });
+});
+
+describe(`GET '/admin'`, () => {
+  beforeAll(async () => {
+    await prisma.post.deleteMany();
+    await prisma.post.createMany({
+      data: [
+        {
+          authorId: 1,
+          title: 'Title for the first post',
+          content: 'Content for the first post.',
+          published: true,
+        },
+        {
+          authorId: 1,
+          title: 'Title for the second post',
+          content: 'Content for the second post.',
+          published: false,
+        },
+      ],
+    });
+  });
+
+  test('response with all posts', async () => {
+    const response = await request(app).get('/admin');
 
     expect(response.headers['content-type']).toMatch(/json/);
     expect(response.status).toEqual(200);
