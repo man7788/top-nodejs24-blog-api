@@ -38,9 +38,21 @@ exports.postBlogPost = [
   },
 ];
 
-// Handle get all posts on GET
+// Handle get all posts on GET (client)
 exports.getAllPosts = async (req, res) => {
   const posts = await db.readAllPosts();
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      posts,
+    },
+  });
+};
+
+// Handle get all posts on GET (admin)
+exports.getAllPostsAdmin = async (req, res) => {
+  const posts = await db.readAllPostsAdmin();
 
   res.status(200).json({
     status: 'success',
