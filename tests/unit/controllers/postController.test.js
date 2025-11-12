@@ -92,7 +92,68 @@ describe(`Post blog post controller`, () => {
   });
 });
 
-describe(`Get all posts controller`, () => {
+describe(`Get all posts controller (client)`, () => {
+  test('response with all posts', async () => {
+    const posts = [
+      {
+        id: 1,
+        authorId: 1,
+        title: 'Post title 1',
+        content: 'Post content 1',
+        createdAt: new Date(),
+        updateddAt: new Date(),
+        comments: [],
+      },
+      {
+        id: 2,
+        authorId: 1,
+        title: 'Post title 2',
+        content: 'Post content 2',
+        createdAt: new Date(),
+        updateddAt: new Date(),
+        comments: [],
+      },
+    ];
+
+    db.readAllPosts.mockReturnValue(posts);
+
+    const req = {};
+
+    await postController.getAllPosts(req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 'success',
+      data: {
+        posts,
+      },
+    });
+  });
+
+  test('response with empty array if no post found', async () => {
+    const posts = [];
+
+    db.readAllPosts.mockReturnValue(posts);
+
+    const req = {};
+
+    await postController.getAllPosts(req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 'success',
+      data: {
+        posts,
+      },
+    });
+  });
+});
+
+describe(`Get all posts controller (admin)`, () => {
   test('response with all posts', async () => {
     const posts = [
       {
