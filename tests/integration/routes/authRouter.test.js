@@ -2,6 +2,7 @@ const authRouter = require('../../../src/routes/authRouter');
 
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const passport = require('passport');
 
 const request = require('supertest');
 const express = require('express');
@@ -18,6 +19,11 @@ const bufferSpy = jest.spyOn(Buffer, 'from');
 
 jest.mock('jsonwebtoken', () => ({
   sign: jest.fn(),
+}));
+
+jest.mock('passport', () => ({
+  use: jest.fn(),
+  authenticate: jest.fn(),
 }));
 
 afterEach(async () => {
@@ -120,6 +126,38 @@ describe(`POST '/login'`, () => {
       status: 'success',
       data: {
         token: expect.any(String),
+      },
+    });
+  });
+});
+
+describe(`GET '/auth'`, () => {
+  test('response with user data', async () => {
+    const user = {
+      id: 1,
+      email: 'foo@bar.com',
+      name: 'foobar',
+      admin: true,
+    };
+
+    passport.authenticate.mockImplementation(() => (req, res, next) => {
+      req.user = user;
+      next();
+    });
+
+    const response = await request(app).get('/auth');
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(200);
+    expect(response.body).toEqual({
+      status: 'success',
+      data: {
+        user: {
+          id: expect.any(Number),
+          email: expect.any(String),
+          name: expect.any(String),
+          admin: expect.any(Boolean),
+        },
       },
     });
   });
