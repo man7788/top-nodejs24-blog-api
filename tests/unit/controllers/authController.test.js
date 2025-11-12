@@ -52,7 +52,6 @@ describe(`Post login controller`, () => {
 
     const req = {};
 
-    // Second anonymous function of "postBlogPost" controller array
     await authController.postLogin[1](req, res);
 
     expect(res.status).toHaveBeenCalledTimes(1);
@@ -80,7 +79,6 @@ describe(`Post login controller`, () => {
 
     const req = { body: { email: 'foo@bar.com', password: 'foobar' } };
 
-    // Second anonymous function of "postBlogPost" controller array
     await authController.postLogin[1](req, res);
 
     expect(res.status).toHaveBeenCalledTimes(1);
@@ -107,7 +105,6 @@ describe(`Post login controller`, () => {
 
     const req = { body: { email: 'foo@bar.com', password: 'foobar' } };
 
-    // Second anonymous function of "postBlogPost" controller array
     await authController.postLogin[1](req, res);
 
     expect(res.status).toHaveBeenCalledTimes(1);
@@ -148,7 +145,6 @@ describe(`Post login controller`, () => {
 
     const req = { body: { email: 'foo@bar.com', password: 'foobar' } };
 
-    // Second anonymous function of "postBlogPost" controller array
     await authController.postLogin[1](req, res);
 
     expect(res.status).toHaveBeenCalledTimes(1);
@@ -158,6 +154,31 @@ describe(`Post login controller`, () => {
       status: 'success',
       data: {
         token: mockedToken,
+      },
+    });
+  });
+});
+
+describe(`Get auth controller`, () => {
+  test('response with user data', async () => {
+    const user = {
+      id: 1,
+      email: 'foo@bar.com',
+      name: 'foobar',
+      admin: true,
+    };
+
+    const req = { user };
+
+    authController.getAuth(req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 'success',
+      data: {
+        user,
       },
     });
   });
