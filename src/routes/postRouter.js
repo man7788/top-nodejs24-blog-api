@@ -7,8 +7,11 @@ const postRouter = Router();
 // POST request to create new post
 postRouter.post('/', customJwtAuth, postController.postBlogPost);
 
-// GET request to get all posts
+// GET request to get all posts (client)
 postRouter.get('/', postController.getAllPosts);
+
+// GET request to get all posts (admin)
+postRouter.get('/admin', customJwtAuth, postController.getAllPostsAdmin);
 
 // GET request to get a single post
 postRouter.get('/:postId', postController.getPost);
