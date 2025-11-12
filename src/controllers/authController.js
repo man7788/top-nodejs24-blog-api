@@ -70,6 +70,7 @@ exports.postLogin = [
   },
 ];
 
+// Handle authentication and response with user object on POST
 exports.getAuth = (req, res) => {
   res.status(200).json({ status: 'success', data: { user: req.user } });
 };
