@@ -26,3 +26,14 @@ exports.validateLogin = [
     .withMessage(`Password ${lengthErr64}`)
     .escape(),
 ];
+
+exports.validateProfile = [
+  body('name')
+    .trim()
+    .notEmpty()
+    .withMessage(`Name ${emptyErr}`)
+    .bail()
+    .isLength({ max: 64 })
+    .withMessage(`Name ${lengthErr64}`)
+    .escape(),
+];
