@@ -74,3 +74,36 @@ exports.postLogin = [
 exports.getAuth = (req, res) => {
   res.status(200).json({ status: 'success', data: { user: req.user } });
 };
+
+// Handle user profile update on PATCH
+exports.patchProfile = [
+  validator.validateProfile,
+  async (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      const details = new ErrorFormatter(errors).array();
+
+      return res.status(400).json({
+        status: 'error',
+        error: {
+          code: 400,
+          message: 'Update form validation failed.',
+          details,
+        },
+      });
+    }
+
+    const userId = Number(req.user.id);
+    const name = req.body.name;
+
+    const upadated = await db.updateUserById(userId, name);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        upadated,
+      },
+    });
+  },
+];
