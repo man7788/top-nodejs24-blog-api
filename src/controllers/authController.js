@@ -107,3 +107,56 @@ exports.patchProfile = [
     });
   },
 ];
+
+// Handle user password update on PATCH
+exports.patchPassword = [
+  validator.validatePassword,
+  async (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      const details = new ErrorFormatter(errors).array();
+
+      return res.status(400).json({
+        status: 'error',
+        error: {
+          code: 400,
+          message: 'Update form validation failed.',
+          details,
+        },
+      });
+    }
+
+    const passwordFail = {
+      status: 'error',
+      error: {
+        code: 401,
+        message: 'Invalid password.',
+        details: [{ field: 'password', message: 'Invalid password.' }],
+      },
+    };
+
+    const userId = Number(req.user.id);
+
+    const currentPassword = await db.readUserPasswordById(userId);
+    const match = await bcrypt.compare(
+      req.body.currentPassword,
+      currentPassword,
+    );
+
+    if (!match) {
+      return res.status(401).json(passwordFail);
+    }
+
+    const hashedPassword = await bcrypt.hash(req.body.newPassword, 10);
+
+    const upadated = await db.updateUserPasswordById(userId, hashedPassword);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        upadated,
+      },
+    });
+  },
+];
