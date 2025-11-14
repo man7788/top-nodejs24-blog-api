@@ -1,3 +1,4 @@
+const prisma = require('../../../src/config/prisma/client');
 const authRouter = require('../../../src/routes/authRouter');
 
 const bcrypt = require('bcryptjs');
@@ -23,14 +24,41 @@ jest.mock('jsonwebtoken', () => ({
 
 jest.mock('passport', () => ({
   use: jest.fn(),
-  authenticate: jest.fn(),
+  // authenticate: jest.fn(),
+  authenticate: jest.fn(() => (req, res, next) => {
+    req.user = {
+      id: 1,
+      email: 'foo@bar.com',
+      name: 'foobar',
+      admin: true,
+    };
+    next();
+  }),
 }));
 
 afterEach(async () => {
   jest.clearAllMocks();
 });
 
+afterAll(async () => {
+  await prisma.user.deleteMany();
+});
+
 describe(`POST '/login'`, () => {
+  beforeEach(async () => {
+    await prisma.user.deleteMany();
+    await prisma.$queryRaw`ALTER SEQUENCE "User_id_seq" RESTART WITH 1;`;
+    await prisma.user.create({
+      data: {
+        id: 1,
+        email: 'foo@bar.com',
+        name: 'foobar',
+        password: 'foobar123',
+        admin: true,
+      },
+    });
+  });
+
   test('response form validation error', async () => {
     const response = await request(app).post('/login');
 
@@ -113,7 +141,7 @@ describe(`POST '/login'`, () => {
 
     jwt.sign.mockReturnValue('mockedToken');
 
-    const payload = { email: 'foo@bar.com', password: 'foobar' };
+    const payload = { email: 'foo@bar.com', password: 'foobar123' };
 
     const response = await request(app)
       .post('/login')
@@ -133,18 +161,6 @@ describe(`POST '/login'`, () => {
 
 describe(`GET '/auth'`, () => {
   test('response with user data', async () => {
-    const user = {
-      id: 1,
-      email: 'foo@bar.com',
-      name: 'foobar',
-      admin: true,
-    };
-
-    passport.authenticate.mockImplementation(() => (req, res, next) => {
-      req.user = user;
-      next();
-    });
-
     const response = await request(app).get('/auth');
 
     expect(response.headers['content-type']).toMatch(/json/);
@@ -153,9 +169,68 @@ describe(`GET '/auth'`, () => {
       status: 'success',
       data: {
         user: {
-          id: expect.any(Number),
+          id: 1,
           email: expect.any(String),
           name: expect.any(String),
+          admin: expect.any(Boolean),
+        },
+      },
+    });
+  });
+});
+
+describe(`PATCH '/profile'`, () => {
+  beforeEach(async () => {
+    await prisma.user.deleteMany();
+    await prisma.$queryRaw`ALTER SEQUENCE "User_id_seq" RESTART WITH 1;`;
+    await prisma.user.create({
+      data: {
+        id: 1,
+        email: 'foo@bar.com',
+        name: 'foobar',
+        password: 'foobar123',
+        admin: true,
+      },
+    });
+  });
+
+  test('response with form validation error', async () => {
+    const response = await request(app).patch('/profile');
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(400);
+    expect(response.body).toEqual({
+      status: 'error',
+      error: {
+        code: 400,
+        message: expect.any(String),
+        details: [
+          {
+            field: 'name',
+            message: expect.any(String),
+          },
+        ],
+      },
+    });
+  });
+
+  test('response with updated user', async () => {
+    const payload = { name: 'john doe' };
+
+    const response = await request(app)
+      .patch('/profile')
+      .set('Content-Type', 'application/json')
+      .send(payload);
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(200);
+    expect(response.body).toEqual({
+      status: 'success',
+      data: {
+        updated: {
+          id: 1,
+          email: expect.any(String),
+          name: 'john doe',
           admin: expect.any(Boolean),
         },
       },
