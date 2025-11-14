@@ -15,6 +15,7 @@ jest.mock('bcryptjs', () => ({
 
 jest.mock('../../../src/middlewares/validators/authValidator', () => ({
   validateLogin: jest.fn(),
+  validateProfile: jest.fn(),
 }));
 
 const bufferSpy = jest.spyOn(Buffer, 'from');
@@ -25,6 +26,7 @@ jest.mock('jsonwebtoken', () => ({
 
 jest.mock('../../../src/services/queries/userQuery', () => ({
   readUserByEmail: jest.fn(),
+  updateUserById: jest.fn(),
 }));
 
 beforeEach(async () => {
@@ -179,6 +181,63 @@ describe(`Get auth controller`, () => {
       status: 'success',
       data: {
         user,
+      },
+    });
+  });
+});
+
+describe(`Patch profile controller`, () => {
+  test('response with form validation error', async () => {
+    validationResult.mockImplementation(() => ({
+      isEmpty: () => false,
+      array: () => [{ path: 'name', msg: 'Name must not be empty.' }],
+    }));
+
+    const req = {};
+
+    await authController.patchProfile[1](req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 'error',
+      error: {
+        code: 400,
+        message: 'Update form validation failed.',
+        details: [{ field: 'name', message: 'Name must not be empty.' }],
+      },
+    });
+  });
+
+  test('response with profile patch result', async () => {
+    validationResult.mockImplementation(() => ({
+      isEmpty: () => true,
+    }));
+
+    db.updateUserById.mockReturnValue({
+      id: 1,
+      email: 'foo@bar.com',
+      name: 'john doe',
+      admin: true,
+    });
+
+    const req = { user: { id: 1 }, body: { name: 'john doe' } };
+
+    await authController.patchProfile[1](req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 'success',
+      data: {
+        updated: {
+          id: 1,
+          email: 'foo@bar.com',
+          name: 'john doe',
+          admin: true,
+        },
       },
     });
   });
