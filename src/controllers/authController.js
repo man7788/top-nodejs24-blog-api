@@ -97,12 +97,12 @@ exports.patchProfile = [
     const userId = Number(req.user.id);
     const name = req.body.name;
 
-    const upadated = await db.updateUserById(userId, name);
+    const updated = await db.updateUserById(userId, name);
 
     res.status(200).json({
       status: 'success',
       data: {
-        upadated,
+        updated,
       },
     });
   },
