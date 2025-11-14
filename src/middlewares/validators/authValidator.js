@@ -37,3 +37,35 @@ exports.validateProfile = [
     .withMessage(`Name ${lengthErr64}`)
     .escape(),
 ];
+
+exports.validatePassword = [
+  body('currentPassword')
+    .trim()
+    .notEmpty()
+    .withMessage(`Password ${emptyErr}`)
+    .bail()
+    .isLength({ max: 64 })
+    .withMessage(`Password ${lengthErr64}`)
+    .escape(),
+  body('newPassword')
+    .trim()
+    .notEmpty()
+    .withMessage(`Password ${emptyErr}`)
+    .bail()
+    .isLength({ max: 64 })
+    .withMessage(`Password ${lengthErr64}`)
+    .escape(),
+  body('passwordConfirmation')
+    .trim()
+    .notEmpty()
+    .withMessage(`Password ${emptyErr}`)
+    .bail()
+    .isLength({ max: 64 })
+    .withMessage(`Password ${lengthErr64}`)
+    .bail()
+    .custom((value, { req }) => {
+      return value === req.body.newPassword;
+    })
+    .withMessage(`Passwords do not match`)
+    .escape(),
+];
