@@ -10,7 +10,10 @@ authRouter.post('/login', authController.postLogin);
 // GET request to vertify JWT
 authRouter.get('/auth', customJwtAuth, authController.getAuth);
 
-// POST request to update user profile
+// PATCH request to update user profile
 authRouter.patch('/profile', customJwtAuth, authController.patchProfile);
+
+// PATCH request to update user password
+authRouter.patch('/password', customJwtAuth, authController.patchPassword);
 
 module.exports = authRouter;
