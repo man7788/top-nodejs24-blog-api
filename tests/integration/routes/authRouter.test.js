@@ -14,6 +14,7 @@ app.use('/', authRouter);
 
 jest.mock('bcryptjs', () => ({
   compare: jest.fn(),
+  hash: jest.fn(),
 }));
 
 const bufferSpy = jest.spyOn(Buffer, 'from');
@@ -227,10 +228,142 @@ describe(`PATCH '/profile'`, () => {
     expect(response.body).toEqual({
       status: 'success',
       data: {
-        updated: {
+        user: {
           id: 1,
           email: expect.any(String),
           name: 'john doe',
+          admin: expect.any(Boolean),
+        },
+      },
+    });
+  });
+});
+
+describe(`PATCH '/password'`, () => {
+  beforeEach(async () => {
+    await prisma.user.deleteMany();
+    await prisma.$queryRaw`ALTER SEQUENCE "User_id_seq" RESTART WITH 1;`;
+    await prisma.user.create({
+      data: {
+        id: 1,
+        email: 'foo@bar.com',
+        name: 'foobar',
+        password: 'foobar123',
+        admin: true,
+      },
+    });
+  });
+
+  test('response with form validation error', async () => {
+    const response = await request(app).patch('/password');
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(400);
+    expect(response.body).toEqual({
+      status: 'error',
+      error: {
+        code: 400,
+        message: expect.any(String),
+        details: [
+          {
+            field: 'currentPassword',
+            message: expect.any(String),
+          },
+          {
+            field: 'newPassword',
+            message: expect.any(String),
+          },
+          {
+            field: 'passwordConfirmation',
+            message: expect.any(String),
+          },
+        ],
+      },
+    });
+  });
+
+  test('response with error if passwords do not match', async () => {
+    const payload = {
+      currentPassword: 'foobar123',
+      newPassword: 'newfoobar',
+      passwordConfirmation: 'wrongfoobar',
+    };
+
+    const response = await request(app)
+      .patch('/password')
+      .set('Content-Type', 'application/json')
+      .send(payload);
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(400);
+    expect(response.body).toEqual({
+      status: 'error',
+      error: {
+        code: 400,
+        message: expect.any(String),
+        details: [
+          {
+            field: 'passwordConfirmation',
+            message: expect.any(String),
+          },
+        ],
+      },
+    });
+  });
+
+  test('response with error if password invalid', async () => {
+    const payload = {
+      currentPassword: 'foobar',
+      newPassword: 'newfoobar',
+      passwordConfirmation: 'newfoobar',
+    };
+
+    bcrypt.compare.mockResolvedValue(false);
+
+    const response = await request(app)
+      .patch('/password')
+      .set('Content-Type', 'application/json')
+      .send(payload);
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(401);
+    expect(response.body).toEqual({
+      status: 'error',
+      error: {
+        code: 401,
+        message: expect.any(String),
+        details: [
+          {
+            field: 'currentPassword',
+            message: expect.any(String),
+          },
+        ],
+      },
+    });
+  });
+
+  test('response with updated password', async () => {
+    const payload = {
+      currentPassword: 'foobar123',
+      newPassword: 'newfoobar',
+      passwordConfirmation: 'newfoobar',
+    };
+
+    bcrypt.compare.mockResolvedValue(true);
+    const response = await request(app)
+      .patch('/password')
+      .set('Content-Type', 'application/json')
+      .send(payload);
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(200);
+    expect(response.body).toEqual({
+      status: 'success',
+      data: {
+        user: {
+          id: 1,
+          email: expect.any(String),
+          name: 'foobar',
           admin: expect.any(Boolean),
         },
       },
