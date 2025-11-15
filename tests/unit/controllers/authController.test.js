@@ -11,6 +11,7 @@ jest.mock('express-validator', () => ({
 
 jest.mock('bcryptjs', () => ({
   compare: jest.fn(),
+  hash: jest.fn(),
 }));
 
 jest.mock('../../../src/middlewares/validators/authValidator', () => ({
@@ -27,6 +28,8 @@ jest.mock('jsonwebtoken', () => ({
 jest.mock('../../../src/services/queries/userQuery', () => ({
   readUserByEmail: jest.fn(),
   updateUserById: jest.fn(),
+  readUserPasswordById: jest.fn(),
+  updateUserPasswordById: jest.fn(),
 }));
 
 beforeEach(async () => {
@@ -211,18 +214,20 @@ describe(`Patch profile controller`, () => {
   });
 
   test('response with profile patch result', async () => {
-    validationResult.mockImplementation(() => ({
-      isEmpty: () => true,
-    }));
-
-    db.updateUserById.mockReturnValue({
+    const user = {
       id: 1,
       email: 'foo@bar.com',
       name: 'john doe',
       admin: true,
-    });
+    };
 
-    const req = { user: { id: 1 }, body: { name: 'john doe' } };
+    validationResult.mockImplementation(() => ({
+      isEmpty: () => true,
+    }));
+
+    db.updateUserById.mockReturnValue(user);
+
+    const req = { user, body: { name: 'john doe' } };
 
     await authController.patchProfile[1](req, res);
 
@@ -232,12 +237,118 @@ describe(`Patch profile controller`, () => {
     expect(res.json).toHaveBeenCalledWith({
       status: 'success',
       data: {
-        updated: {
-          id: 1,
-          email: 'foo@bar.com',
-          name: 'john doe',
-          admin: true,
+        user,
+      },
+    });
+  });
+});
+
+describe(`Patch password controller`, () => {
+  test('response with form validation error', async () => {
+    validationResult.mockImplementation(() => ({
+      isEmpty: () => false,
+      array: () => [
+        { path: 'currentPassword', msg: 'Current password must not be empty.' },
+        { path: 'newPassword', msg: 'New password must not be empty.' },
+        {
+          path: 'passwordConfirmation',
+          msg: 'Password confrimation must not be empty.',
         },
+      ],
+    }));
+
+    const req = {};
+
+    await authController.patchPassword[1](req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 'error',
+      error: {
+        code: 400,
+        message: 'Update form validation failed.',
+        details: [
+          {
+            field: 'currentPassword',
+            message: 'Current password must not be empty.',
+          },
+          { field: 'newPassword', message: 'New password must not be empty.' },
+          {
+            field: 'passwordConfirmation',
+            message: 'Password confrimation must not be empty.',
+          },
+        ],
+      },
+    });
+  });
+
+  test('response with error if password invalid', async () => {
+    validationResult.mockImplementation(() => ({
+      isEmpty: () => true,
+    }));
+
+    bcrypt.compare.mockResolvedValue(false);
+
+    const req = {
+      user: { id: 1 },
+      body: {
+        currentPassword: 'foobar',
+        newPassword: 'newfoobar',
+        passwordConfimration: 'newfoobar',
+      },
+    };
+
+    await authController.patchPassword[1](req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 'error',
+      error: {
+        code: 401,
+        message: 'Invalid password.',
+        details: [{ field: 'currentPassword', message: 'Invalid password.' }],
+      },
+    });
+  });
+
+  test('response with password patch result', async () => {
+    const user = {
+      id: 1,
+      email: 'foo@bar.com',
+      name: 'john doe',
+      admin: true,
+    };
+
+    validationResult.mockImplementation(() => ({
+      isEmpty: () => true,
+    }));
+
+    bcrypt.compare.mockResolvedValue(true);
+
+    const req = {
+      user: { id: 1 },
+      body: {
+        currentPassword: 'foobar',
+        newPassword: 'newfoobar',
+        passwordConfimration: 'newfoobar',
+      },
+    };
+
+    db.updateUserPasswordById.mockResolvedValue(user);
+
+    await authController.patchPassword[1](req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 'success',
+      data: {
+        user,
       },
     });
   });
