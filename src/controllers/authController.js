@@ -97,12 +97,12 @@ exports.patchProfile = [
     const userId = Number(req.user.id);
     const name = req.body.name;
 
-    const updated = await db.updateUserById(userId, name);
+    const user = await db.updateUserById(userId, name);
 
     res.status(200).json({
       status: 'success',
       data: {
-        updated,
+        user,
       },
     });
   },
@@ -132,7 +132,7 @@ exports.patchPassword = [
       error: {
         code: 401,
         message: 'Invalid password.',
-        details: [{ field: 'password', message: 'Invalid password.' }],
+        details: [{ field: 'currentPassword', message: 'Invalid password.' }],
       },
     };
 
@@ -150,12 +150,12 @@ exports.patchPassword = [
 
     const hashedPassword = await bcrypt.hash(req.body.newPassword, 10);
 
-    const upadated = await db.updateUserPasswordById(userId, hashedPassword);
+    const user = await db.updateUserPasswordById(userId, hashedPassword);
 
     res.status(200).json({
       status: 'success',
       data: {
-        upadated,
+        user,
       },
     });
   },
