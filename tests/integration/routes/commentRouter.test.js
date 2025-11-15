@@ -16,6 +16,20 @@ jest.mock('passport', () => ({
   }),
 }));
 
+beforeAll(async () => {
+  await prisma.user.deleteMany();
+  await prisma.$queryRaw`ALTER SEQUENCE "User_id_seq" RESTART WITH 1;`;
+  await prisma.user.create({
+    data: {
+      id: 1,
+      email: 'foo@bar.com',
+      name: 'foobar',
+      password: 'foobar123',
+      admin: true,
+    },
+  });
+});
+
 afterEach(async () => {
   jest.clearAllMocks();
 });
@@ -23,6 +37,7 @@ afterEach(async () => {
 afterAll(async () => {
   await prisma.comment.deleteMany();
   await prisma.post.deleteMany();
+  await prisma.user.deleteMany();
 });
 
 describe(`POST '/:postId/comments'`, () => {
