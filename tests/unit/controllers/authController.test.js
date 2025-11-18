@@ -244,16 +244,11 @@ describe(`Patch profile controller`, () => {
 });
 
 describe(`Patch password controller`, () => {
-  test('response with form validation error', async () => {
+  test('response with form validation error (current password)', async () => {
     validationResult.mockImplementation(() => ({
       isEmpty: () => false,
       array: () => [
         { path: 'currentPassword', msg: 'Current password must not be empty.' },
-        { path: 'newPassword', msg: 'New password must not be empty.' },
-        {
-          path: 'passwordConfirmation',
-          msg: 'Password confrimation must not be empty.',
-        },
       ],
     }));
 
@@ -273,11 +268,6 @@ describe(`Patch password controller`, () => {
           {
             field: 'currentPassword',
             message: 'Current password must not be empty.',
-          },
-          { field: 'newPassword', message: 'New password must not be empty.' },
-          {
-            field: 'passwordConfirmation',
-            message: 'Password confrimation must not be empty.',
           },
         ],
       },
@@ -315,6 +305,41 @@ describe(`Patch password controller`, () => {
     });
   });
 
+  test('response with form validation error (new password)', async () => {
+    validationResult.mockImplementation(() => ({
+      isEmpty: () => false,
+      array: () => [
+        { path: 'newPassword', msg: 'New password must not be empty.' },
+        {
+          path: 'passwordConfirmation',
+          msg: 'Password confrimation must not be empty.',
+        },
+      ],
+    }));
+
+    const req = {};
+
+    await authController.patchPassword[1](req, res);
+
+    expect(res.status).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith({
+      status: 'error',
+      error: {
+        code: 400,
+        message: 'Update form validation failed.',
+        details: [
+          { field: 'newPassword', message: 'New password must not be empty.' },
+          {
+            field: 'passwordConfirmation',
+            message: 'Password confrimation must not be empty.',
+          },
+        ],
+      },
+    });
+  });
+
   test('response with password patch result', async () => {
     const user = {
       id: 1,
@@ -340,7 +365,7 @@ describe(`Patch password controller`, () => {
 
     db.updateUserPasswordById.mockResolvedValue(user);
 
-    await authController.patchPassword[1](req, res);
+    await authController.patchPassword[3](req, res);
 
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(200);
