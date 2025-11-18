@@ -110,8 +110,8 @@ exports.patchProfile = [
 
 // Handle user password update on PATCH
 exports.patchPassword = [
-  validator.validatePassword,
-  async (req, res) => {
+  validator.validateCurrentPassword,
+  async (req, res, next) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -147,6 +147,27 @@ exports.patchPassword = [
     if (!match) {
       return res.status(401).json(passwordFail);
     }
+
+    next();
+  },
+  validator.validateNewPassword,
+  async (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      const details = new ErrorFormatter(errors).array();
+
+      return res.status(400).json({
+        status: 'error',
+        error: {
+          code: 400,
+          message: 'Update form validation failed.',
+          details,
+        },
+      });
+    }
+
+    const userId = Number(req.user.id);
 
     const hashedPassword = await bcrypt.hash(req.body.newPassword, 10);
 
