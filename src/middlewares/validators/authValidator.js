@@ -38,7 +38,7 @@ exports.validateProfile = [
     .escape(),
 ];
 
-exports.validatePassword = [
+exports.validateCurrentPassword = [
   body('currentPassword')
     .trim()
     .notEmpty()
@@ -47,6 +47,9 @@ exports.validatePassword = [
     .isLength({ max: 64 })
     .withMessage(`Current password ${lengthErr64}`)
     .escape(),
+];
+
+exports.validateNewPassword = [
   body('newPassword')
     .trim()
     .notEmpty()
