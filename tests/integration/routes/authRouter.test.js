@@ -3,7 +3,6 @@ const authRouter = require('../../../src/routes/authRouter');
 
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const passport = require('passport');
 
 const request = require('supertest');
 const express = require('express');
@@ -25,7 +24,6 @@ jest.mock('jsonwebtoken', () => ({
 
 jest.mock('passport', () => ({
   use: jest.fn(),
-  // authenticate: jest.fn(),
   authenticate: jest.fn(() => (req, res, next) => {
     req.user = {
       id: 1,
@@ -254,39 +252,11 @@ describe(`PATCH '/password'`, () => {
     });
   });
 
-  test('response with form validation error', async () => {
-    const response = await request(app).patch('/password');
-
-    expect(response.headers['content-type']).toMatch(/json/);
-    expect(response.status).toEqual(400);
-    expect(response.body).toEqual({
-      status: 'error',
-      error: {
-        code: 400,
-        message: expect.any(String),
-        details: [
-          {
-            field: 'currentPassword',
-            message: expect.any(String),
-          },
-          {
-            field: 'newPassword',
-            message: expect.any(String),
-          },
-          {
-            field: 'passwordConfirmation',
-            message: expect.any(String),
-          },
-        ],
-      },
-    });
-  });
-
-  test('response with error if passwords do not match', async () => {
+  test('response with form validation error (current password)', async () => {
     const payload = {
-      currentPassword: 'foobar123',
+      currentPassword: '',
       newPassword: 'newfoobar',
-      passwordConfirmation: 'wrongfoobar',
+      passwordConfirmation: 'newfoobar',
     };
 
     const response = await request(app)
@@ -303,7 +273,7 @@ describe(`PATCH '/password'`, () => {
         message: expect.any(String),
         details: [
           {
-            field: 'passwordConfirmation',
+            field: 'currentPassword',
             message: expect.any(String),
           },
         ],
@@ -313,7 +283,7 @@ describe(`PATCH '/password'`, () => {
 
   test('response with error if password invalid', async () => {
     const payload = {
-      currentPassword: 'foobar',
+      currentPassword: 'wrongfoobar',
       newPassword: 'newfoobar',
       passwordConfirmation: 'newfoobar',
     };
@@ -342,6 +312,72 @@ describe(`PATCH '/password'`, () => {
     });
   });
 
+  test('response with form validation error (new password)', async () => {
+    const payload = {
+      currentPassword: 'foobar123',
+      newPassword: '',
+      passwordConfirmation: '',
+    };
+
+    bcrypt.compare.mockResolvedValue(true);
+
+    const response = await request(app)
+      .patch('/password')
+      .set('Content-Type', 'application/json')
+      .send(payload);
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(400);
+    expect(response.body).toEqual({
+      status: 'error',
+      error: {
+        code: 400,
+        message: expect.any(String),
+        details: [
+          {
+            field: 'newPassword',
+            message: expect.any(String),
+          },
+          {
+            field: 'passwordConfirmation',
+            message: expect.any(String),
+          },
+        ],
+      },
+    });
+  });
+
+  test('response with error if passwords do not match', async () => {
+    const payload = {
+      currentPassword: 'foobar123',
+      newPassword: 'newfoobar',
+      passwordConfirmation: 'wrongfoobar',
+    };
+
+    bcrypt.compare.mockResolvedValue(true);
+
+    const response = await request(app)
+      .patch('/password')
+      .set('Content-Type', 'application/json')
+      .send(payload);
+
+    expect(response.headers['content-type']).toMatch(/json/);
+    expect(response.status).toEqual(400);
+    expect(response.body).toEqual({
+      status: 'error',
+      error: {
+        code: 400,
+        message: expect.any(String),
+        details: [
+          {
+            field: 'passwordConfirmation',
+            message: expect.any(String),
+          },
+        ],
+      },
+    });
+  });
+
   test('response with updated password', async () => {
     const payload = {
       currentPassword: 'foobar123',
@@ -350,6 +386,7 @@ describe(`PATCH '/password'`, () => {
     };
 
     bcrypt.compare.mockResolvedValue(true);
+
     const response = await request(app)
       .patch('/password')
       .set('Content-Type', 'application/json')
